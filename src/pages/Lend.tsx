@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import {
   Card,
@@ -14,7 +13,7 @@ import { useWallet } from '@/hooks/useWallet';
 import { useUserData } from '@/hooks/useUserData';
 import TokenAmountInput from '@/components/TokenAmountInput';
 import TransactionConfirmation from '@/components/TransactionConfirmation';
-import { toast } from '@/components/ui/sonner';
+import { toast } from '@/lib/toast';
 import { Loader2 } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
 
@@ -27,6 +26,7 @@ export default function Lend() {
   const [isConfirming, setIsConfirming] = useState(false);
   const [isDeposit, setIsDeposit] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [activeTab, setActiveTab] = useState('deposit');
 
   const handleMaxDeposit = () => {
     setDepositAmount(balance.USDP.toString());
@@ -190,7 +190,11 @@ export default function Lend() {
               <CardDescription>Deposit or withdraw USDP</CardDescription>
             </CardHeader>
             <CardContent>
-              <Tabs defaultValue="deposit" className="w-full">
+              <Tabs 
+                defaultValue="deposit" 
+                className="w-full"
+                onValueChange={(value) => setActiveTab(value)}
+              >
                 <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger value="deposit">Deposit</TabsTrigger>
                   <TabsTrigger value="withdraw">Withdraw</TabsTrigger>
@@ -262,27 +266,21 @@ export default function Lend() {
               </Tabs>
             </CardContent>
             <CardFooter className="flex justify-end">
-              <Tabs.Consumer>
-                {(value) => (
-                  <>
-                    {value === "deposit" ? (
-                      <Button 
-                        onClick={handleDeposit} 
-                        disabled={!depositAmount || parseFloat(depositAmount) <= 0 || parseFloat(depositAmount) > balance.USDP}
-                      >
-                        Deposit USDP
-                      </Button>
-                    ) : (
-                      <Button 
-                        onClick={handleWithdraw} 
-                        disabled={!withdrawAmount || parseFloat(withdrawAmount) <= 0 || parseFloat(withdrawAmount) > userData.lendingBalance}
-                      >
-                        Withdraw USDP
-                      </Button>
-                    )}
-                  </>
-                )}
-              </Tabs.Consumer>
+              {activeTab === "deposit" ? (
+                <Button 
+                  onClick={handleDeposit} 
+                  disabled={!depositAmount || parseFloat(depositAmount) <= 0 || parseFloat(depositAmount) > balance.USDP}
+                >
+                  Deposit USDP
+                </Button>
+              ) : (
+                <Button 
+                  onClick={handleWithdraw} 
+                  disabled={!withdrawAmount || parseFloat(withdrawAmount) <= 0 || parseFloat(withdrawAmount) > userData.lendingBalance}
+                >
+                  Withdraw USDP
+                </Button>
+              )}
             </CardFooter>
           </Card>
         </div>

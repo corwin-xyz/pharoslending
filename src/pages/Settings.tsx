@@ -12,7 +12,7 @@ import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useWallet } from '@/hooks/useWallet';
-import { toast } from '@/components/ui/sonner';
+import { toast } from '@/lib/toast';
 import { Shield, Bell, Eye, Monitor, Moon, Sun } from 'lucide-react';
 import { formatAddress } from '@/lib/utils';
 

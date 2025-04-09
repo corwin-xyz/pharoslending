@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import {
   Card,
@@ -15,7 +14,7 @@ import { useUserData } from '@/hooks/useUserData';
 import TokenAmountInput from '@/components/TokenAmountInput';
 import TransactionConfirmation from '@/components/TransactionConfirmation';
 import CreditScoreCard from '@/components/CreditScoreCard';
-import { toast } from '@/components/ui/sonner';
+import { toast } from '@/lib/toast';
 import { calculateRequiredCollateral } from '@/lib/utils';
 import { Loader2 } from 'lucide-react';
 
@@ -286,32 +285,26 @@ export default function Borrow() {
               </Tabs>
             </CardContent>
             <CardFooter className="flex justify-end">
-              <Tabs.Consumer>
-                {(value) => (
-                  <>
-                    {value === "borrow" ? (
-                      <Button 
-                        onClick={handleBorrow} 
-                        disabled={!borrowAmount || parseFloat(borrowAmount) <= 0 || requiredCollateral > balance.PHAR}
-                      >
-                        Borrow USDP
-                      </Button>
-                    ) : (
-                      <Button 
-                        onClick={handleRepay} 
-                        disabled={
-                          !repayAmount || 
-                          parseFloat(repayAmount) <= 0 || 
-                          parseFloat(repayAmount) > balance.USDP || 
-                          parseFloat(repayAmount) > userData.borrowedAmount
-                        }
-                      >
-                        Repay USDP
-                      </Button>
-                    )}
-                  </>
-                )}
-              </Tabs.Consumer>
+              {userData.borrowedAmount > 0 ? (
+                <Button 
+                  onClick={handleRepay} 
+                  disabled={
+                    !repayAmount || 
+                    parseFloat(repayAmount) <= 0 || 
+                    parseFloat(repayAmount) > balance.USDP || 
+                    parseFloat(repayAmount) > userData.borrowedAmount
+                  }
+                >
+                  Repay USDP
+                </Button>
+              ) : (
+                <Button 
+                  onClick={handleBorrow} 
+                  disabled={!borrowAmount || parseFloat(borrowAmount) <= 0 || requiredCollateral > balance.PHAR}
+                >
+                  Borrow USDP
+                </Button>
+              )}
             </CardFooter>
           </Card>
         </div>
