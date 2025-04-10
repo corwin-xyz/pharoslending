@@ -1,73 +1,111 @@
-# Welcome to your Lovable project
 
-## Project info
+# Pharos Lending Platform Smart Contracts
 
-**URL**: https://lovable.dev/projects/cec34dd6-3fd8-4e66-ad33-2e1e9f66f667
+This repository contains the smart contracts for the Pharos Lending Platform, a decentralized lending protocol built on the Pharos blockchain.
 
-## How can I edit this code?
+## Overview
 
-There are several ways of editing your application.
+The Pharos Lending Platform allows users to:
 
-**Use Lovable**
+- Deposit USDP stablecoins to earn interest
+- Borrow USDP against PHAR collateral
+- Build credit scores through platform interactions
+- Earn additional yield through collateral restaking
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/cec34dd6-3fd8-4e66-ad33-2e1e9f66f667) and start prompting.
+## Contract Architecture
 
-Changes made via Lovable will be committed automatically to this repo.
+The platform consists of the following core contracts:
 
-**Use your preferred IDE**
+- **PharosToken (PHAR)**: Native token of the ecosystem
+- **USDPToken (USDP)**: Stablecoin used for lending and borrowing
+- **CreditScoring**: Manages user credit scores based on platform interactions
+- **RestakingIntegration**: Handles staking of collateral for additional yield
+- **PharosLending**: Main contract managing deposits, loans, and repayments
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## Getting Started
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Prerequisites
 
-Follow these steps:
+- Node.js v16+
+- npm or yarn
+- Hardhat
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### Installation
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+1. Clone this repository
+2. Install dependencies:
+   ```
+   npm install
+   ```
+3. Create a `.env` file based on `.env.example` and populate it with your credentials:
+   ```
+   cp .env.example .env
+   ```
 
-# Step 3: Install the necessary dependencies.
-npm i
+### Compilation
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+Compile the smart contracts:
+
+```
+npx hardhat compile
 ```
 
-**Edit a file directly in GitHub**
+### Testing
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+Run the test suite:
 
-**Use GitHub Codespaces**
+```
+npx hardhat test
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Deployment
 
-## What technologies are used for this project?
+To deploy to Pharos Testnet:
 
-This project is built with:
+1. Ensure your `.env` file is properly configured with your private key and RPC URL
+2. Run the deployment script:
+   ```
+   npx hardhat run deploy/deploy.js --network pharosTestnet
+   ```
+3. The deployed contract addresses will be saved to `deployed-addresses.json`
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Smart Contract Details
 
-## How can I deploy this project?
+### PharosToken (PHAR)
 
-Simply open [Lovable](https://lovable.dev/projects/cec34dd6-3fd8-4e66-ad33-2e1e9f66f667) and click on Share -> Publish.
+ERC20 token representing the native token of the Pharos ecosystem.
 
-## Can I connect a custom domain to my Lovable project?
+### USDPToken (USDP)
 
-Yes it is!
+ERC20 stablecoin used for lending and borrowing within the platform.
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+### CreditScoring
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+Calculates and manages user credit scores based on:
+- Platform interaction count
+- PHAR token holdings
+- Repayment history
+
+### RestakingIntegration
+
+Manages the staking of collateral to generate additional yield.
+
+### PharosLending
+
+Main contract that handles:
+- USDP deposits and withdrawals
+- Borrowing USDP against PHAR collateral
+- Loan repayments
+- Interest accrual for both lenders and borrowers
+
+## Security Considerations
+
+These contracts implement several security features:
+- ReentrancyGuard to prevent reentrancy attacks
+- Pausable functionality for emergency scenarios
+- Input validation and require statements
+- SafeERC20 for safe token transfers
+
+## License
+
+These contracts are licensed under the MIT License.
