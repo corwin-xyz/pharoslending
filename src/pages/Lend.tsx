@@ -33,7 +33,7 @@ export default function Lend() {
   };
 
   const handleMaxWithdraw = () => {
-    setWithdrawAmount(userData.lendingBalance.toString());
+    setWithdrawAmount(userData.lentAmount.toString());
   };
 
   const handleDeposit = () => {
@@ -57,7 +57,7 @@ export default function Lend() {
       return;
     }
     
-    if (parseFloat(withdrawAmount) > userData.lendingBalance) {
+    if (parseFloat(withdrawAmount) > userData.lentAmount) {
       toast.error("Insufficient lending balance");
       return;
     }
@@ -108,8 +108,8 @@ export default function Lend() {
         ]
       : [
           { label: "Amount to withdraw", value: `${withdrawAmount} USDP` },
-          { label: "Current Balance", value: `${userData.lendingBalance.toFixed(2)} USDP` },
-          { label: "Total Earnings", value: `${userData.lendingRewards.toFixed(4)} USDP` },
+          { label: "Current Balance", value: `${userData.lentAmount.toFixed(2)} USDP` },
+          { label: "Total Earnings", value: `${(0).toFixed(4)} USDP` }, // Placeholder
         ];
 
     return (
@@ -141,11 +141,11 @@ export default function Lend() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1">
                     <p className="text-sm font-medium">Your Supplied</p>
-                    <p className="text-2xl font-bold">{userData.lendingBalance.toFixed(2)} USDP</p>
+                    <p className="text-2xl font-bold">{userData.lentAmount.toFixed(2)} USDP</p>
                   </div>
                   <div className="space-y-1">
                     <p className="text-sm font-medium">Total Earnings</p>
-                    <p className="text-2xl font-bold">{userData.lendingRewards.toFixed(4)} USDP</p>
+                    <p className="text-2xl font-bold">{(0).toFixed(4)} USDP</p> {/* Placeholder */}
                   </div>
                 </div>
                 
@@ -236,7 +236,7 @@ export default function Lend() {
                     value={withdrawAmount}
                     onChange={setWithdrawAmount}
                     onMax={handleMaxWithdraw}
-                    max={userData.lendingBalance}
+                    max={userData.lentAmount}
                     token="USDP"
                     label="Withdraw Amount"
                   />
@@ -252,12 +252,12 @@ export default function Lend() {
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Remaining Balance</span>
                           <span>
-                            {Math.max(0, userData.lendingBalance - parseFloat(withdrawAmount)).toFixed(2)} USDP
+                            {Math.max(0, userData.lentAmount - parseFloat(withdrawAmount)).toFixed(2)} USDP
                           </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Earnings to Date</span>
-                          <span>{userData.lendingRewards.toFixed(4)} USDP</span>
+                          <span>{(0).toFixed(4)} USDP</span> {/* Placeholder */}
                         </div>
                       </div>
                     </div>
@@ -276,7 +276,7 @@ export default function Lend() {
               ) : (
                 <Button 
                   onClick={handleWithdraw} 
-                  disabled={!withdrawAmount || parseFloat(withdrawAmount) <= 0 || parseFloat(withdrawAmount) > userData.lendingBalance}
+                  disabled={isProcessing || !withdrawAmount || parseFloat(withdrawAmount) <= 0 || parseFloat(withdrawAmount) > userData.lentAmount}
                 >
                   Withdraw USDP
                 </Button>

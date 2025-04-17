@@ -1,165 +1,196 @@
-
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useWallet } from './useWallet';
-import { calculateCreditScore, getCollateralRatio } from '@/lib/utils';
-
-interface UserData {
-  creditScore: number;
-  collateralRatio: number;
-  interactions: number;
-  lendingBalance: number;
-  lendingRewards: number;
-  borrowedAmount: number;
-  collateralAmount: number;
-  loanStatus: 'none' | 'active' | 'repaying';
-  interestEarned: number;
-  restakingRewards: number;
-}
+import { toast } from '@/lib/toast';
+import {
+  UserData as MockUserData, 
+  Transaction,
+  TransactionType,
+  MOCK_INITIAL_USER_DATA,
+  generateNewTransaction,
+  simulateDelay,
+} from '@/lib/mockData';
 
 interface UserDataContextProps {
-  userData: UserData;
+  userData: MockUserData;
+  isLoading: boolean; 
   refreshUserData: () => void;
-  lendFunds: (amount: number) => void;
-  borrowFunds: (amount: number, collateral: number) => void;
-  repayLoan: (amount: number) => void;
-  withdrawLending: (amount: number) => void;
+  lendFunds: (amount: number) => Promise<boolean>; 
+  borrowFunds: (amount: number, requiredCollateral: number) => Promise<boolean>;
+  repayLoan: (amount: number) => Promise<boolean>;
+  withdrawLending: (amount: number) => Promise<boolean>;
+  addCollateral: (amount: number) => Promise<boolean>;
+  removeCollateral: (amount: number) => Promise<boolean>;
 }
 
-// Create context
 const UserDataContext = createContext<UserDataContextProps>({} as UserDataContextProps);
 
-// Mock initial data
-const initialUserData: UserData = {
-  creditScore: 0,
-  collateralRatio: 2,
-  interactions: 0,
-  lendingBalance: 0,
-  lendingRewards: 0,
-  borrowedAmount: 0,
-  collateralAmount: 0,
-  loanStatus: 'none',
-  interestEarned: 0,
-  restakingRewards: 0,
+const loadInitialData = (): MockUserData => {
+  const savedData = localStorage.getItem("pharos_user_data_mock");
+  if (savedData) {
+    try {
+      const parsedData = JSON.parse(savedData);
+      return {
+        ...parsedData,
+        transactionHistory: parsedData.transactionHistory.map((tx: any) => ({
+          ...tx,
+          timestamp: new Date(tx.timestamp), 
+        })),
+      };
+    } catch (error) {
+      console.error("Failed to parse saved user data:", error);
+      localStorage.removeItem("pharos_user_data_mock"); 
+    }
+  }
+  return MOCK_INITIAL_USER_DATA;
 };
 
 export const UserDataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isConnected, balance } = useWallet();
-  const [userData, setUserData] = useState<UserData>(initialUserData);
+  const { isConnected, balance } = useWallet(); 
+  const [userData, setUserData] = useState<MockUserData>(loadInitialData);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  // Simulation of loading user data from blockchain
   useEffect(() => {
     if (isConnected) {
-      const savedData = localStorage.getItem("pharos_user_data");
-      if (savedData) {
-        setUserData(JSON.parse(savedData));
-      } else {
-        // Mock initial data - in a real app this would come from the blockchain
-        const interactions = Math.floor(Math.random() * 10);
-        const creditScore = calculateCreditScore(interactions, balance.PHAR);
-        const collateralRatio = getCollateralRatio(creditScore);
-        
-        setUserData({
-          ...initialUserData,
-          interactions,
-          creditScore,
-          collateralRatio,
-        });
-      }
+      setUserData(loadInitialData());
     } else {
-      setUserData(initialUserData);
+      setUserData(MOCK_INITIAL_USER_DATA);
+      localStorage.removeItem("pharos_user_data_mock"); 
     }
-  }, [isConnected, balance.PHAR]);
+  }, [isConnected]);
 
-  // Save data to localStorage when it changes
   useEffect(() => {
     if (isConnected) {
-      localStorage.setItem("pharos_user_data", JSON.stringify(userData));
+      localStorage.setItem("pharos_user_data_mock", JSON.stringify(userData));
     }
   }, [userData, isConnected]);
 
-  // Refresh user data (simulating blockchain interaction)
-  const refreshUserData = () => {
-    if (isConnected) {
-      const newInteractions = userData.interactions;
-      const newCreditScore = calculateCreditScore(newInteractions, balance.PHAR);
-      const newCollateralRatio = getCollateralRatio(newCreditScore);
-      
-      // Update interest and rewards
-      const lendingInterest = userData.lendingBalance * 0.05 / 365; // 5% APY
-      const restakingReward = userData.collateralAmount * 0.08 / 365; // 8% APY
-      
+  const refreshUserData = useCallback(() => {
+    if (!isConnected) return;
+    console.log("Refreshing user data (mock)...");
+    toast.info("Refreshing user data...");
+    setUserData(loadInitialData());
+    toast.success("User data refreshed.");
+  }, [isConnected]);
+
+  const handleTransaction = async (
+    action: () => Partial<MockUserData>,
+    type: TransactionType,
+    amount: number,
+    token: 'USDP' | 'PHAR'
+  ): Promise<boolean> => {
+    if (!isConnected || isLoading) return false;
+
+    setIsLoading(true);
+    toast.loading("Processing transaction...");
+
+    try {
+      await simulateDelay(); 
+
+      const updates = action();
+      const newTransaction = generateNewTransaction(type, amount, token);
+
       setUserData(prev => ({
         ...prev,
-        creditScore: newCreditScore,
-        collateralRatio: newCollateralRatio,
-        interestEarned: prev.interestEarned + lendingInterest,
-        restakingRewards: prev.restakingRewards + restakingReward,
-        lendingRewards: prev.lendingRewards + lendingInterest + restakingReward,
+        ...updates,
+        transactionHistory: [newTransaction, ...prev.transactionHistory],
       }));
+
+      toast.dismiss(); 
+      toast.success(`${type.replace('_', ' ')} successful!`);
+      setIsLoading(false);
+      return true;
+
+    } catch (error: any) {
+      console.error(`Error during ${type}:`, error);
+      toast.dismiss();
+      toast.error(error.message || `Failed to ${type.replace('_', ' ')}.`);
+      setIsLoading(false);
+      return false;
     }
   };
 
-  // Lend funds to the protocol
-  const lendFunds = (amount: number) => {
-    if (isConnected) {
-      setUserData(prev => ({
-        ...prev,
-        lendingBalance: prev.lendingBalance + amount,
-        interactions: prev.interactions + 1,
-      }));
-    }
-  };
+  const lendFunds = (amount: number) => handleTransaction(
+    () => {
+      if (amount <= 0) throw new Error("Amount must be positive.");
+      if (balance.USDP < amount) throw new Error("Insufficient USDP balance.");
+      return { lentAmount: userData.lentAmount + amount };
+    },
+    'deposit', amount, 'USDP'
+  );
 
-  // Borrow funds from the protocol
-  const borrowFunds = (amount: number, collateral: number) => {
-    if (isConnected) {
-      setUserData(prev => ({
-        ...prev,
-        borrowedAmount: prev.borrowedAmount + amount,
-        collateralAmount: prev.collateralAmount + collateral,
-        loanStatus: 'active',
-        interactions: prev.interactions + 1,
-      }));
-    }
-  };
+  const withdrawLending = (amount: number) => handleTransaction(
+    () => {
+      if (amount <= 0) throw new Error("Amount must be positive.");
+      if (userData.lentAmount < amount) throw new Error("Insufficient lent balance.");
+      return { lentAmount: userData.lentAmount - amount };
+    },
+    'withdraw_lend', amount, 'USDP'
+  );
 
-  // Repay loan
-  const repayLoan = (amount: number) => {
-    if (isConnected) {
-      const newBorrowedAmount = Math.max(0, userData.borrowedAmount - amount);
-      const repaidRatio = amount / userData.borrowedAmount;
+  const borrowFunds = (amount: number, requiredCollateral: number) => handleTransaction(
+    () => {
+      if (amount <= 0) throw new Error("Amount must be positive.");
+      if (balance.PHAR < requiredCollateral) throw new Error("Insufficient PHAR balance for collateral.");
+      return {
+        borrowedAmount: userData.borrowedAmount + amount,
+        collateralAmount: userData.collateralAmount + requiredCollateral,
+      };
+    },
+    'borrow', amount, 'USDP'
+  );
+
+  const repayLoan = (amount: number) => handleTransaction(
+    () => {
+      if (amount <= 0) throw new Error("Amount must be positive.");
+      if (balance.USDP < amount) throw new Error("Insufficient USDP balance.");
+      const repayAmount = Math.min(amount, userData.borrowedAmount); 
+      if (repayAmount <= 0) throw new Error("No loan to repay or invalid amount.");
+
+      const repaidRatio = userData.borrowedAmount > 0 ? repayAmount / userData.borrowedAmount : 0;
       const collateralToReturn = userData.collateralAmount * repaidRatio;
-      
-      setUserData(prev => ({
-        ...prev,
-        borrowedAmount: newBorrowedAmount,
-        collateralAmount: prev.collateralAmount - collateralToReturn,
-        loanStatus: newBorrowedAmount > 0 ? 'repaying' : 'none',
-        interactions: prev.interactions + 1,
-      }));
-    }
-  };
 
-  // Withdraw lending
-  const withdrawLending = (amount: number) => {
-    if (isConnected) {
-      setUserData(prev => ({
-        ...prev,
-        lendingBalance: Math.max(0, prev.lendingBalance - amount),
-        interactions: prev.interactions + 1,
-      }));
-    }
-  };
+      return {
+        borrowedAmount: userData.borrowedAmount - repayAmount,
+        collateralAmount: userData.collateralAmount - collateralToReturn,
+      };
+    },
+    'repay', amount, 'USDP'
+  );
+
+  const addCollateral = (amount: number) => handleTransaction(
+    () => {
+      if (amount <= 0) throw new Error("Amount must be positive.");
+      if (balance.PHAR < amount) throw new Error("Insufficient PHAR balance.");
+      return { collateralAmount: userData.collateralAmount + amount };
+    },
+    'add_collateral', amount, 'PHAR'
+  );
+
+  const removeCollateral = (amount: number) => handleTransaction(
+    () => {
+      if (amount <= 0) throw new Error("Amount must be positive.");
+      if (userData.collateralAmount < amount) throw new Error("Insufficient collateral to remove.");
+      const requiredCollateralForLoan = userData.borrowedAmount * userData.collateralRatio; 
+      if (userData.collateralAmount - amount < requiredCollateralForLoan) {
+        throw new Error("Cannot remove collateral below required minimum for loan.");
+      }
+      return { collateralAmount: userData.collateralAmount - amount };
+    },
+    'remove_collateral', amount, 'PHAR'
+  );
 
   return (
-    <UserDataContext.Provider 
-      value={{ 
-        userData, 
-        refreshUserData, 
-        lendFunds, 
-        borrowFunds, 
-        repayLoan, 
-        withdrawLending 
+    <UserDataContext.Provider
+      value={{
+        userData,
+        isLoading,
+        refreshUserData,
+        lendFunds,
+        borrowFunds,
+        repayLoan,
+        withdrawLending,
+        addCollateral,
+        removeCollateral
       }}
     >
       {children}

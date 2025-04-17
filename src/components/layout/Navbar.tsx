@@ -1,16 +1,32 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { useWallet } from '@/hooks/useWallet';
 import { formatAddress } from '@/lib/utils';
+import { Menu } from 'lucide-react';
 
-export default function Navbar() {
+interface NavbarProps {
+  sidebarOpen: boolean;
+  setSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+export default function Navbar({ sidebarOpen, setSidebarOpen }: NavbarProps) {
   const { address, isConnected, connect, disconnect } = useWallet();
   
   return (
-    <nav className="border-b border-border backdrop-blur-sm">
+    <nav className="sticky top-0 z-40 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <div className="flex items-center gap-2">
+          {isConnected && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden mr-2"
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              aria-label="Toggle sidebar"
+            >
+              <Menu className="h-6 w-6" />
+            </Button>
+          )}
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-r from-pharos-600 to-pharos-400">
             <span className="text-white font-bold">P</span>
           </div>

@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import {
   Card,
@@ -36,16 +35,16 @@ export default function Dashboard() {
   }, [refreshUserData]);
 
   return (
-    <div className="container mx-auto max-w-7xl">
+    <div className="container mx-auto max-w-7xl px-2 sm:px-4">
       <div className="flex flex-col space-y-6">
         <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
           <CreditScoreCard />
           <TokenBalanceCard />
           
-          <Card>
-            <CardHeader className="pb-2">
+          <Card className="w-full mb-4">
+            <CardHeader className="pb-2 w-full">
               <CardTitle className="text-lg">Quick Actions</CardTitle>
             </CardHeader>
             <CardContent>
@@ -85,7 +84,7 @@ export default function Dashboard() {
           </Card>
         </div>
 
-        <Tabs defaultValue="overview" className="space-y-4">
+        <Tabs defaultValue="overview" className="space-y-4 w-full">
           <TabsList>
             <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="lending">Lending</TabsTrigger>
@@ -93,22 +92,22 @@ export default function Dashboard() {
           </TabsList>
           
           <TabsContent value="overview" className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-4">
               <StatsCard
                 title="Total Value Locked"
-                value={formatCurrency(userData.lendingBalance + userData.collateralAmount)}
+                value={formatCurrency(userData.lentAmount + userData.collateralAmount)}
                 description="All your positions"
                 icon={<ShieldCheck />}
               />
               <StatsCard
                 title="Credit Score"
                 value={userData.creditScore}
-                description={`${userData.interactions} interactions`}
+                description=""
                 icon={<LineChart />}
               />
               <StatsCard
                 title="Total Earnings"
-                value={formatCurrency(userData.interestEarned + userData.restakingRewards)}
+                value={formatCurrency(0)}
                 trend={{ value: 4.28, isPositive: true }}
                 icon={<TrendingUp />}
               />
@@ -120,7 +119,7 @@ export default function Dashboard() {
               />
             </div>
 
-            <Card>
+            <Card className="w-full mb-4">
               <CardHeader>
                 <CardTitle>Protocol Statistics</CardTitle>
                 <CardDescription>
@@ -128,7 +127,7 @@ export default function Dashboard() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid gap-4 md:grid-cols-3">
+                <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
                   <div className="space-y-1">
                     <p className="text-sm font-medium">Total Protocol TVL</p>
                     <p className="text-2xl font-bold">{formatCurrency(2450000)}</p>
@@ -155,8 +154,8 @@ export default function Dashboard() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="lending" className="space-y-4">
-            <Card>
+          <TabsContent value="lending" className="space-y-4 w-full">
+            <Card className="w-full mb-4">
               <CardHeader>
                 <CardTitle>Your Lending Position</CardTitle>
                 <CardDescription>
@@ -168,12 +167,12 @@ export default function Dashboard() {
                   <div className="space-y-4">
                     <div className="space-y-1">
                       <p className="text-sm font-medium">Supplied USDP</p>
-                      <p className="text-2xl font-bold">{userData.lendingBalance.toFixed(2)} USDP</p>
+                      <p className="text-2xl font-bold">{userData.lentAmount.toFixed(2)} USDP</p>
                     </div>
                     
                     <div className="space-y-1">
                       <p className="text-sm font-medium">Interest Earned</p>
-                      <p className="text-xl font-bold">{userData.interestEarned.toFixed(4)} USDP</p>
+                      <p className="text-xl font-bold">{0.0000.toFixed(4)} USDP</p>
                       <p className="text-xs text-muted-foreground">
                         Base interest rate: 5.2% APY
                       </p>
@@ -183,7 +182,7 @@ export default function Dashboard() {
                   <div className="space-y-4">
                     <div className="space-y-1">
                       <p className="text-sm font-medium">Restaking Rewards</p>
-                      <p className="text-xl font-bold">{userData.restakingRewards.toFixed(4)} USDP</p>
+                      <p className="text-xl font-bold">{0.0000.toFixed(4)} USDP</p>
                       <p className="text-xs text-muted-foreground">
                         Restaking yield: 8.1% APY
                       </p>
@@ -191,7 +190,7 @@ export default function Dashboard() {
                     
                     <div className="space-y-1">
                       <p className="text-sm font-medium">Total Rewards</p>
-                      <p className="text-xl font-bold">{userData.lendingRewards.toFixed(4)} USDP</p>
+                      <p className="text-xl font-bold">{0.0000.toFixed(4)} USDP</p>
                       <p className="text-xs text-muted-foreground">
                         Combined APY: 13.3%
                       </p>
@@ -211,8 +210,8 @@ export default function Dashboard() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="borrowing" className="space-y-4">
-            <Card>
+          <TabsContent value="borrowing" className="space-y-4 w-full">
+            <Card className="w-full mb-4">
               <CardHeader>
                 <CardTitle>Your Borrowing Position</CardTitle>
                 <CardDescription>
