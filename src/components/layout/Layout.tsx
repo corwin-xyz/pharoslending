@@ -55,7 +55,7 @@ export default function Layout({ children }: LayoutProps) {
               className={cn(
                 "flex-1 pt-6 px-4 transition-all duration-300 ease-in-out overflow-y-auto overflow-x-hidden",
                 // Add margin-left only on desktop when sidebar is statically positioned
-                isConnected ? "md:ml-64" : ""
+                // isConnected ? "md:ml-64" : ""
               )}
             >
               {children}

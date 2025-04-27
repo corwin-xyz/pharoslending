@@ -27,13 +27,13 @@ const App = () => (
           <BrowserRouter>
             <Layout>
               <Routes>
-                <Route path="/" element={<Dashboard />} />
-                <Route path="/lend" element={<Lend />} />
-                <Route path="/borrow" element={<Borrow />} />
-                <Route path="/analytics" element={<Analytics />} />
-                <Route path="/history" element={<History />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="*" element={<NotFound />} />
+                <Route path='/' element={<Dashboard />} />
+                <Route path='/lend' element={<Lend />} />
+                <Route path='/borrow' element={<Borrow />} />
+                <Route path='/analytics' element={<Analytics />} />
+                <Route path='/history' element={<History />} />
+                <Route path='/settings' element={<Settings />} />
+                <Route path='*' element={<NotFound />} />
               </Routes>
             </Layout>
           </BrowserRouter>
