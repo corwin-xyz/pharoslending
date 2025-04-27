@@ -4,6 +4,7 @@ import SidebarNav from './SidebarNav';
 import { useWallet } from '@/hooks/useWallet';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
+import Landing from '@/pages/Landing';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -26,7 +27,7 @@ export default function Layout({ children }: LayoutProps) {
       <Navbar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
       <div className="flex-1 flex relative"> {/* Added relative positioning */}
-        {isConnected && (
+        {isConnected ? (
           <>
             {/* Sidebar */}
             <aside
@@ -61,6 +62,8 @@ export default function Layout({ children }: LayoutProps) {
               {children}
             </main>
           </>
+        ) : (
+          <Landing />
         )}
       </div>
     </div>
