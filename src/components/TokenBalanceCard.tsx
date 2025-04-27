@@ -23,9 +23,9 @@ export default function TokenBalanceCard({ className }: TokenBalanceCardProps) {
               <div className="h-8 w-8 rounded-full bg-pharos-500 flex items-center justify-center">
                 <span className="font-bold text-white">P</span>
               </div>
-              <span>PHAR</span>
+              <span>PTT</span>
             </div>
-            <span className="font-semibold">{balance.PHAR.toFixed(2)}</span>
+            <span className="font-semibold">{balance}</span>
           </div>
           
           <div className="flex items-center justify-between">
@@ -33,16 +33,16 @@ export default function TokenBalanceCard({ className }: TokenBalanceCardProps) {
               <div className="h-8 w-8 rounded-full bg-green-500 flex items-center justify-center">
                 <span className="font-bold text-white">$</span>
               </div>
-              <span>USDP</span>
+              <span>USDC</span>
             </div>
-            <span className="font-semibold">{balance.USDP.toFixed(2)}</span>
+            <span className="font-semibold">{balance}</span>
           </div>
           
           <div className="pt-2 border-t">
             <div className="flex justify-between">
               <span className="text-sm text-muted-foreground">Total Value</span>
               <span className="font-medium">
-                {formatCurrency(balance.PHAR + balance.USDP)}
+                {formatCurrency(balance)}
               </span>
             </div>
           </div>

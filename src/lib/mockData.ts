@@ -51,12 +51,12 @@ const generateInitialTransactions = (count: number): Transaction[] => {
       case 'borrow':
       case 'repay':
         token = 'USDP';
-        amount = faker.number.float({ min: 100, max: 5000, precision: 0.01 });
+        // amount = faker.number.float({ min: 100, max: 5000, precision: 0.01 });
         break;
       case 'add_collateral':
       case 'remove_collateral':
         token = 'PHAR';
-        amount = faker.number.float({ min: 10, max: 1000, precision: 0.01 });
+        // amount = faker.number.float({ min: 10, max: 1000, precision: 0.01 });
         break;
     }
 

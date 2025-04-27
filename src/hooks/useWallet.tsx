@@ -11,11 +11,14 @@ import {
   MOCK_INITIAL_BALANCE,
   WalletBalance,
 } from '@/lib/mockData';
+import { ad } from 'node_modules/@faker-js/faker/dist/airline-BUL6NtOJ';
+import { web3, contractUSDC } from '../../web3/contractUSDC'
+import { ethers, formatUnits } from 'ethers';
 
 interface WalletContextProps {
   address: string;
   isConnected: boolean;
-  balance: WalletBalance;
+  balance: number;
   connect: () => Promise<void>;
   disconnect: () => void;
   connectWallet: () => Promise<void>;
@@ -30,13 +33,13 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
   const [address, setAddress] = useState<string>('');
   const [isConnected, setIsConnected] = useState<boolean>(false);
-  const [balance, setBalance] = useState<WalletBalance>({ PHAR: 0, USDP: 0 });
+  const [balance, setBalance] = useState(0);
 
   useEffect(() => {
     const savedConnection = localStorage.getItem('pharos_connected');
     if (savedConnection === 'true') {
       setAddress(MOCK_WALLET_ADDRESS);
-      setBalance(MOCK_INITIAL_BALANCE);
+      // setBalance(MOCK_INITIAL_BALANCE);
       setIsConnected(true);
     }
   }, []);
@@ -44,7 +47,7 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({
   const connect = async () => {
     try {
       setAddress(MOCK_WALLET_ADDRESS);
-      setBalance(MOCK_INITIAL_BALANCE);
+      // setBalance(MOCK_INITIAL_BALANCE);
       setIsConnected(true);
       localStorage.setItem('pharos_connected', 'true');
       toast.success('Demo wallet connected successfully!');
@@ -63,6 +66,7 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({
 
         if (accounts.length > 0) {
           setAddress(accounts[0]);
+          getBalance(accounts[0]);
           setIsConnected(true);
           localStorage.setItem('pharos_connected', 'true');
           toast.success('Wallet connected successfully!');
@@ -83,7 +87,7 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({
             console.log('Wallet disconnected or locked');
           } else {
             setAddress(accounts[0]);
-            toast.success('Account Changeed!');
+            toast.success('Account Changed!');
             console.log('Account changed:', accounts[0]);
           }
         });
@@ -101,11 +105,20 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({
 
   const disconnect = () => {
     setAddress('');
-    setBalance({ PHAR: 0, USDP: 0 });
+    // setBalance({ PHAR: 0, USDP: 0 });
     setIsConnected(false);
     localStorage.removeItem('pharos_connected');
     toast.info('Wallet disconnected');
   };
+
+    const getBalance = async (address) => {
+      const rawBalance = await contractUSDC.balanceOf(address);
+      const decimals = await contractUSDC.decimals();
+
+      const balanceInDecimal = formatUnits(rawBalance, decimals);
+
+      setBalance(Number(balanceInDecimal));
+    };
 
   return (
     <WalletContext.Provider
