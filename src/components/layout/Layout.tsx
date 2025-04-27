@@ -10,7 +10,7 @@ interface LayoutProps {
 }
 
 export default function Layout({ children }: LayoutProps) {
-  const { isConnected } = useWallet();
+  const { connected } = useWallet();
   const isMobile = useIsMobile();
   // Keep sidebar closed by default on mobile, open on desktop
   const [sidebarOpen, setSidebarOpen] = React.useState(!isMobile);
@@ -26,7 +26,7 @@ export default function Layout({ children }: LayoutProps) {
       <Navbar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
       <div className="flex-1 flex relative"> {/* Added relative positioning */}
-        {isConnected && (
+        {connected && (
           <>
             {/* Sidebar */}
             <aside

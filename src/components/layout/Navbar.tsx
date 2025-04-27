@@ -3,20 +3,26 @@ import { Button } from '@/components/ui/button';
 import { useWallet } from '@/hooks/useWallet';
 import { formatAddress } from '@/lib/utils';
 import { Menu } from 'lucide-react';
+import { useConnectModal } from '@rainbow-me/rainbowkit';
+
+
+
+
 
 interface NavbarProps {
   sidebarOpen: boolean;
   setSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 export default function Navbar({ sidebarOpen, setSidebarOpen }: NavbarProps) {
-  const { address, isConnected, connect, disconnect, connectWallet } =
+  const { currentAddress, connected, connect, disconnect, connectWallet } =
     useWallet();
+  const { openConnectModal } = useConnectModal(); // <- ambil openConnectModal function
 
   return (
     <nav className='sticky top-0 z-40 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60'>
       <div className='container mx-auto flex h-16 items-center justify-between px-4'>
         <div className='flex items-center gap-2'>
-          {isConnected && (
+          {connected && (
             <Button
               variant='ghost'
               size='icon'
@@ -45,10 +51,10 @@ export default function Navbar({ sidebarOpen, setSidebarOpen }: NavbarProps) {
               Resources
             </a>
           </div>
-          {isConnected ? (
+          {connected ? (
             <div className='flex items-center gap-2'>
               <span className='text-sm font-medium hidden md:inline-block'>
-                {formatAddress(address)}
+                {formatAddress(currentAddress)}
               </span>
               <Button size='sm' variant='outline' onClick={disconnect}>
                 Disconnect

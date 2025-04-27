@@ -6,18 +6,15 @@ import React, {
   useEffect,
 } from 'react';
 import { toast } from '@/lib/toast';
-import {
-  MOCK_WALLET_ADDRESS,
-  MOCK_INITIAL_BALANCE,
-  WalletBalance,
-} from '@/lib/mockData';
-import { ad } from 'node_modules/@faker-js/faker/dist/airline-BUL6NtOJ';
-import { web3, contractUSDC } from '../../web3/contractUSDC'
-import { ethers, formatUnits } from 'ethers';
+import { MOCK_WALLET_ADDRESS } from '@/lib/mockData';
+import { web3, contractUSDC } from '../../web3/contractUSDC';
+import { formatUnits } from 'ethers';
+import { useConnectModal } from '@rainbow-me/rainbowkit';
+import { useAccount, useBalance } from 'wagmi';
 
 interface WalletContextProps {
-  address: string;
-  isConnected: boolean;
+  currentAddress: string;
+  connected: boolean;
   balance: number;
   connect: () => Promise<void>;
   disconnect: () => void;
@@ -31,24 +28,35 @@ const WalletContext = createContext<WalletContextProps>(
 export const WalletProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [address, setAddress] = useState<string>('');
-  const [isConnected, setIsConnected] = useState<boolean>(false);
-  const [balance, setBalance] = useState(0);
+  const { address, isConnected } = useAccount();
+  const { openConnectModal } = useConnectModal();
+  const {
+    data: balanceData,
+    isLoading,
+    isError,
+  } = useBalance({
+    address: address,
+  });
 
+  const [currentAddress, setCurrentAddress] = useState<string>('');
+  const [balance, setBalance] = useState<number>(0);
+  const [connected, setConnected] = useState(false);
+
+  // Update state when wallet is connected
   useEffect(() => {
-    const savedConnection = localStorage.getItem('pharos_connected');
-    if (savedConnection === 'true') {
-      setAddress(MOCK_WALLET_ADDRESS);
-      // setBalance(MOCK_INITIAL_BALANCE);
-      setIsConnected(true);
+    if (isConnected && address) {
+      setCurrentAddress(address);
+      setConnected(true);
+      toast.success('Wallet connected successfully!');
+      // Set balance based on wagmi hook's balance
+      setBalance(Number(balanceData?.formatted || 0));
     }
-  }, []);
+  }, [isConnected, address, balanceData]);
 
+  // Connect to demo wallet
   const connect = async () => {
     try {
-      setAddress(MOCK_WALLET_ADDRESS);
-      // setBalance(MOCK_INITIAL_BALANCE);
-      setIsConnected(true);
+      setCurrentAddress(MOCK_WALLET_ADDRESS);
       localStorage.setItem('pharos_connected', 'true');
       toast.success('Demo wallet connected successfully!');
     } catch (error) {
@@ -57,74 +65,47 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({
     }
   };
 
+  // Connect to actual wallet
   const connectWallet = async () => {
-    if (typeof window.ethereum !== 'undefined') {
-      try {
-        const accounts = await window.ethereum.request({
-          method: 'eth_accounts',
-        });
-
-        if (accounts.length > 0) {
-          setAddress(accounts[0]);
-          getBalance(accounts[0]);
-          setIsConnected(true);
-          localStorage.setItem('pharos_connected', 'true');
-          toast.success('Wallet connected successfully!');
-          console.log(
-            'Wallet already unlocked. Connected account:',
-            accounts[0]
-          );
-        } else {
-          console.log('Requesting account access...');
-          const requestedAccounts = await window.ethereum.request({
-            method: 'eth_requestAccounts',
-          });
-          console.log('Wallet connected. Account:', requestedAccounts[0]);
-        }
-
-        window.ethereum.on('accountsChanged', (accounts) => {
-          if (accounts.length === 0) {
-            console.log('Wallet disconnected or locked');
-          } else {
-            setAddress(accounts[0]);
-            toast.success('Account Changed!');
-            console.log('Account changed:', accounts[0]);
-          }
-        });
-      } catch (error) {
-        if (error.code === 4001) {
-          console.log('User rejected the connection request.');
-        } else {
-          console.error('Error connecting wallet:', error);
-        }
-      }
-    } else {
-      alert('Please install MetaMask!');
+    if (!isConnected) {
+      // Open connection modal if wallet is not connected
+      openConnectModal();
+    }
+    if (isConnected && address) {
+      setCurrentAddress(address);
+      setConnected(true);
+      toast.success('Wallet connected successfully!');
+      // Set balance after wallet is connected
+      setBalance(Number(balanceData?.formatted || 0));
     }
   };
 
+  // Disconnect wallet
   const disconnect = () => {
-    setAddress('');
-    // setBalance({ PHAR: 0, USDP: 0 });
-    setIsConnected(false);
+    setCurrentAddress('');
+    setConnected(false);
     localStorage.removeItem('pharos_connected');
     toast.info('Wallet disconnected');
   };
 
-    const getBalance = async (address) => {
+  // Get balance manually (if needed)
+  const getBalance = async (address: string) => {
+    try {
       const rawBalance = await contractUSDC.balanceOf(address);
       const decimals = await contractUSDC.decimals();
-
       const balanceInDecimal = formatUnits(rawBalance, decimals);
-
       setBalance(Number(balanceInDecimal));
-    };
+    } catch (error) {
+      console.error('Error fetching balance:', error);
+      toast.error('Failed to fetch balance');
+    }
+  };
 
   return (
     <WalletContext.Provider
       value={{
-        address,
-        isConnected,
+        currentAddress,
+        connected: !!currentAddress,
         balance,
         connect,
         disconnect,
