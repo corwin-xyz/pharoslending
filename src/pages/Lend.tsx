@@ -18,7 +18,7 @@ import { Loader2 } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
 
 export default function Lend() {
-  const { isConnected, balance } = useWallet();
+  const { connected, balance } = useWallet();
   const { userData, lendFunds, withdrawLending } = useUserData();
   
   const [depositAmount, setDepositAmount] = useState('');
@@ -85,7 +85,7 @@ export default function Lend() {
     }, 2000);
   };
 
-  if (!isConnected) {
+  if (!connected) {
     return (
       <div className="container mx-auto max-w-7xl py-10">
         <Card className="w-full max-w-md mx-auto">
