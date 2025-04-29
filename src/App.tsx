@@ -18,6 +18,7 @@ import '@rainbow-me/rainbowkit/styles.css';
 import { WagmiProvider, createConfig, http } from 'wagmi';
 import { RainbowKitProvider, getDefaultConfig } from '@rainbow-me/rainbowkit';
 import { arbitrum, lisk, mainnet, sepolia } from 'wagmi/chains';
+import { WagmiConfig } from 'wagmi';
 
 // Inisialisasi Query Client
 const queryClient = new QueryClient();

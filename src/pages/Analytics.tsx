@@ -60,9 +60,9 @@ const creditDistributionData = [
 ];
 
 export default function Analytics() {
-  const { isConnected } = useWallet();
+  const { connected } = useWallet();
 
-  if (!isConnected) {
+  if (!connected) {
     return (
       <div className="container mx-auto max-w-7xl py-10">
         <Card className="w-full max-w-md mx-auto">

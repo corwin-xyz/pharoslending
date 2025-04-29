@@ -17,13 +17,13 @@ import { Shield, Bell, Eye, Monitor, Moon, Sun } from 'lucide-react';
 import { formatAddress } from '@/lib/utils';
 
 export default function Settings() {
-  const { isConnected, address, disconnect } = useWallet();
+  const { connected, currentAddress, disconnect } = useWallet();
   
   const handleSave = () => {
     toast.success("Settings saved successfully!");
   };
 
-  if (!isConnected) {
+  if (!connected) {
     return (
       <div className="container mx-auto max-w-7xl py-10">
         <Card className="w-full max-w-md mx-auto">
@@ -57,7 +57,7 @@ export default function Settings() {
                     <div className="h-8 w-8 rounded-full bg-pharos-500 flex items-center justify-center">
                       <span className="font-bold text-white text-sm">P</span>
                     </div>
-                    <span className="font-medium">{formatAddress(address)}</span>
+                    <span className="font-medium">{formatAddress(currentAddress)}</span>
                   </div>
                   <Button variant="outline" size="sm" onClick={disconnect}>
                     Disconnect

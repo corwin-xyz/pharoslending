@@ -8,9 +8,9 @@ import React, {
 import { toast } from '@/lib/toast';
 import { MOCK_WALLET_ADDRESS } from '@/lib/mockData';
 import { web3, contractUSDC } from '../../web3/contractUSDC';
-import { formatUnits } from 'ethers';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
-import { useAccount, useBalance } from 'wagmi';
+import { useAccount, useBalance, useWriteContract, useReadContract } from 'wagmi';
+import { log } from 'console';
 
 interface WalletContextProps {
   currentAddress: string;
@@ -30,28 +30,34 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
   const { address, isConnected } = useAccount();
   const { openConnectModal } = useConnectModal();
-  const {
-    data: balanceData,
-    isLoading,
-    isError,
-  } = useBalance({
-    address: address,
-  });
+  const { writeContract, isPending, isSuccess } = useWriteContract();
+
 
   const [currentAddress, setCurrentAddress] = useState<string>('');
   const [balance, setBalance] = useState<number>(0);
+  const [balanceUSDC, setBalanceUSDC] = useState<number>(0);
+  const [balanceETH, setBalanceETH] = useState<number>(0);
+  const [balancePharos, setBalancePharos] = useState<number>(0);
   const [connected, setConnected] = useState(false);
 
   // Update state when wallet is connected
   useEffect(() => {
-    if (isConnected && address) {
-      setCurrentAddress(address);
-      setConnected(true);
-      toast.success('Wallet connected successfully!');
-      // Set balance based on wagmi hook's balance
-      setBalance(Number(balanceData?.formatted || 0));
+    const { ethereum } = window;
+    if (ethereum) {
+      ethereum.on('accountsChanged', (accounts) => {
+        connectWallet();
+        toast.success('Account changed');
+        fetchBalance(address)
+      });
+    } else {
+      console.log('MetaMask tidak terdeteksi');
     }
-  }, [isConnected, address, balanceData]);
+
+    return () => {
+      ethereum?.removeListener('accountsChanged', () => {});
+    };
+  }, [connected, address, balance]);
+
 
   // Connect to demo wallet
   const connect = async () => {
@@ -65,22 +71,31 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({
     }
   };
 
-  // Connect to actual wallet
+
   const connectWallet = async () => {
     if (!isConnected) {
-      // Open connection modal if wallet is not connected
-      openConnectModal();
-    }
-    if (isConnected && address) {
-      setCurrentAddress(address);
+     openConnectModal();
       setConnected(true);
+    }
+
+    if (address && isConnected) {
+      setCurrentAddress(address);
+      localStorage.setItem('pharos_connected', 'true');
       toast.success('Wallet connected successfully!');
-      // Set balance after wallet is connected
-      setBalance(Number(balanceData?.formatted || 0));
+
+      try {
+        const rawBalance = await contractUSDC.methods.getBalance(address).call();
+        const formatted = web3.utils.fromWei(rawBalance, 'ether');
+        setBalance(Number(formatted));
+        console.log('Balance:', formatted);
+      } catch (error) {
+        console.error('Failed to fetch balance:', error);
+        toast.error('Failed to fetch balance');
+      }
     }
   };
 
-  // Disconnect wallet
+
   const disconnect = () => {
     setCurrentAddress('');
     setConnected(false);
@@ -88,18 +103,18 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({
     toast.info('Wallet disconnected');
   };
 
-  // Get balance manually (if needed)
-  const getBalance = async (address: string) => {
+  const fetchBalance = async (addr: string) => {
     try {
-      const rawBalance = await contractUSDC.balanceOf(address);
-      const decimals = await contractUSDC.decimals();
-      const balanceInDecimal = formatUnits(rawBalance, decimals);
-      setBalance(Number(balanceInDecimal));
+      const rawBalance = await contractUSDC.methods.getBalance(addr).call();
+      const formatted = web3.utils.fromWei(rawBalance, 'ether');
+      setBalance(Number(formatted));
+      console.log('Balance updated:', formatted);
     } catch (error) {
-      console.error('Error fetching balance:', error);
+      console.error('Failed to fetch balance:', error);
       toast.error('Failed to fetch balance');
     }
   };
+
 
   return (
     <WalletContext.Provider

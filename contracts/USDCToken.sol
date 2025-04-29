@@ -23,4 +23,8 @@ contract USDCToken is ERC20, Ownable {
     function mint(address to, uint256 amount) public onlyOwner {
         _mint(to, amount);
     }
+
+    function getBalance(address account) external view returns (uint256) {
+        return balanceOf(account);
+    }
 }
