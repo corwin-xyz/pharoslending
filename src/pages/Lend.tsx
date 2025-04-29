@@ -29,7 +29,7 @@ export default function Lend() {
   const [activeTab, setActiveTab] = useState('deposit');
 
   const handleMaxDeposit = () => {
-    setDepositAmount(balance.USDP.toString());
+    setDepositAmount(balance.USDC.toString());
   };
 
   const handleMaxWithdraw = () => {
@@ -42,7 +42,7 @@ export default function Lend() {
       return;
     }
     
-    if (parseFloat(depositAmount) > balance.USDP) {
+    if (parseFloat(depositAmount) > balance.USDC) {
       toast.error("Insufficient balance");
       return;
     }
@@ -72,11 +72,11 @@ export default function Lend() {
     setTimeout(() => {
       if (isDeposit) {
         lendFunds(parseFloat(depositAmount));
-        toast.success(`Successfully deposited ${depositAmount} USDP`);
+        toast.success(`Successfully deposited ${depositAmount} USDC`);
         setDepositAmount('');
       } else {
         withdrawLending(parseFloat(withdrawAmount));
-        toast.success(`Successfully withdrawn ${withdrawAmount} USDP`);
+        toast.success(`Successfully withdrawn ${withdrawAmount} USDC`);
         setWithdrawAmount('');
       }
       
@@ -101,15 +101,15 @@ export default function Lend() {
   if (isConfirming) {
     const details = isDeposit
       ? [
-          { label: "Amount to deposit", value: `${depositAmount} USDP` },
+          { label: "Amount to deposit", value: `${depositAmount} USDC` },
           { label: "Current APY", value: "13.3%" },
           { label: "Base Interest Rate", value: "5.2%" },
           { label: "Restaking Rewards", value: "8.1%" },
         ]
       : [
-          { label: "Amount to withdraw", value: `${withdrawAmount} USDP` },
-          { label: "Current Balance", value: `${userData.lentAmount.toFixed(2)} USDP` },
-          { label: "Total Earnings", value: `${(0).toFixed(4)} USDP` }, // Placeholder
+          { label: "Amount to withdraw", value: `${withdrawAmount} USDC` },
+          { label: "Current Balance", value: `${userData.lentAmount.toFixed(2)} USDC` },
+          { label: "Total Earnings", value: `${(0).toFixed(4)} USDC` }, // Placeholder
         ];
 
     return (
@@ -141,11 +141,11 @@ export default function Lend() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1">
                     <p className="text-sm font-medium">Your Supplied</p>
-                    <p className="text-2xl font-bold">{userData.lentAmount.toFixed(2)} USDP</p>
+                    <p className="text-2xl font-bold">{userData.lentAmount.toFixed(2)} USDC</p>
                   </div>
                   <div className="space-y-1">
                     <p className="text-sm font-medium">Total Earnings</p>
-                    <p className="text-2xl font-bold">{(0).toFixed(4)} USDP</p> {/* Placeholder */}
+                    <p className="text-2xl font-bold">{(0).toFixed(4)} USDC</p> {/* Placeholder */}
                   </div>
                 </div>
                 
@@ -172,7 +172,7 @@ export default function Lend() {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <p className="text-xs text-muted-foreground">Total Supplied</p>
-                      <p className="text-lg font-bold">1,250,000 USDP</p>
+                      <p className="text-lg font-bold">1,250,000 USDC</p>
                     </div>
                     <div>
                       <p className="text-xs text-muted-foreground">Utilization Rate</p>
@@ -187,7 +187,7 @@ export default function Lend() {
           <Card>
             <CardHeader>
               <CardTitle>Manage Lending</CardTitle>
-              <CardDescription>Deposit or withdraw USDP</CardDescription>
+              <CardDescription>Deposit or withdraw USDC</CardDescription>
             </CardHeader>
             <CardContent>
               <Tabs 
@@ -205,8 +205,8 @@ export default function Lend() {
                     value={depositAmount}
                     onChange={setDepositAmount}
                     onMax={handleMaxDeposit}
-                    max={balance.USDP}
-                    token="USDP"
+                    max={balance.USDC}
+                    token="USDC"
                     label="Deposit Amount"
                   />
                   
@@ -216,7 +216,7 @@ export default function Lend() {
                       <div className="mt-2 space-y-1">
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Amount</span>
-                          <span>{depositAmount} USDP</span>
+                          <span>{depositAmount} USDC</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Current APY</span>
@@ -224,7 +224,7 @@ export default function Lend() {
                         </div>
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Est. Daily Earnings</span>
-                          <span>{(parseFloat(depositAmount) * 0.133 / 365).toFixed(4)} USDP</span>
+                          <span>{(parseFloat(depositAmount) * 0.133 / 365).toFixed(4)} USDC</span>
                         </div>
                       </div>
                     </div>
@@ -237,7 +237,7 @@ export default function Lend() {
                     onChange={setWithdrawAmount}
                     onMax={handleMaxWithdraw}
                     max={userData.lentAmount}
-                    token="USDP"
+                    token="USDC"
                     label="Withdraw Amount"
                   />
                   
@@ -247,17 +247,17 @@ export default function Lend() {
                       <div className="mt-2 space-y-1">
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Amount</span>
-                          <span>{withdrawAmount} USDP</span>
+                          <span>{withdrawAmount} USDC</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Remaining Balance</span>
                           <span>
-                            {Math.max(0, userData.lentAmount - parseFloat(withdrawAmount)).toFixed(2)} USDP
+                            {Math.max(0, userData.lentAmount - parseFloat(withdrawAmount)).toFixed(2)} USDC
                           </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Earnings to Date</span>
-                          <span>{(0).toFixed(4)} USDP</span> {/* Placeholder */}
+                          <span>{(0).toFixed(4)} USDC</span> {/* Placeholder */}
                         </div>
                       </div>
                     </div>
@@ -269,16 +269,16 @@ export default function Lend() {
               {activeTab === "deposit" ? (
                 <Button 
                   onClick={handleDeposit} 
-                  disabled={!depositAmount || parseFloat(depositAmount) <= 0 || parseFloat(depositAmount) > balance.USDP}
+                  disabled={!depositAmount || parseFloat(depositAmount) <= 0 || parseFloat(depositAmount) > balance.USDC}
                 >
-                  Deposit USDP
+                  Deposit USDC
                 </Button>
               ) : (
                 <Button 
                   onClick={handleWithdraw} 
                   disabled={isProcessing || !withdrawAmount || parseFloat(withdrawAmount) <= 0 || parseFloat(withdrawAmount) > userData.lentAmount}
                 >
-                  Withdraw USDP
+                  Withdraw USDC
                 </Button>
               )}
             </CardFooter>
@@ -288,16 +288,16 @@ export default function Lend() {
         <Card>
           <CardHeader>
             <CardTitle>How Lending Works</CardTitle>
-            <CardDescription>Understanding the Pharos Credit lending mechanism</CardDescription>
+            <CardDescription>Understanding the PTTos Credit lending mechanism</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-3">
             <div className="space-y-2">
               <div className="h-10 w-10 rounded-full bg-primary/20 text-primary flex items-center justify-center">
                 1
               </div>
-              <h3 className="font-semibold">Deposit USDP</h3>
+              <h3 className="font-semibold">Deposit USDC</h3>
               <p className="text-sm text-muted-foreground">
-                Supply liquidity to the protocol by depositing USDP stablecoins into the lending pool.
+                Supply liquidity to the protocol by depositing USDC stablecoins into the lending pool.
               </p>
             </div>
             <div className="space-y-2">
@@ -315,7 +315,7 @@ export default function Lend() {
               </div>
               <h3 className="font-semibold">Earn Restaking Rewards</h3>
               <p className="text-sm text-muted-foreground">
-                Get additional yield from the PHAR collateral restaking mechanism unique to Pharos.
+                Get additional yield from the PTT collateral restaking mechanism unique to PTTos.
               </p>
             </div>
           </CardContent>

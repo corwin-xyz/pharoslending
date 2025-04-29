@@ -8,9 +8,8 @@ import React, {
 import { toast } from '@/lib/toast';
 import { MOCK_WALLET_ADDRESS } from '@/lib/mockData';
 import { web3, contractUSDC } from '../../web3/contractUSDC';
-import { formatUnits } from 'ethers';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
-import { useAccount, useBalance } from 'wagmi';
+import { useAccount, useBalance, useWriteContract, useReadContract } from 'wagmi';
 
 interface WalletContextProps {
   currentAddress: string;
@@ -30,28 +29,24 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
   const { address, isConnected } = useAccount();
   const { openConnectModal } = useConnectModal();
-  const {
-    data: balanceData,
-    isLoading,
-    isError,
-  } = useBalance({
-    address: address,
-  });
+  const { writeContract, isPending, isSuccess } = useWriteContract();
+
 
   const [currentAddress, setCurrentAddress] = useState<string>('');
   const [balance, setBalance] = useState<number>(0);
+  const [balanceUSDC, setBalanceUSDC] = useState<number>(0);
+  const [balanceETH, setBalanceETH] = useState<number>(0);
+  const [balancePharos, setBalancePharos] = useState<number>(0);
   const [connected, setConnected] = useState(false);
 
   // Update state when wallet is connected
   useEffect(() => {
-    if (isConnected && address) {
+    if (connected && address) {
       setCurrentAddress(address);
-      setConnected(true);
       toast.success('Wallet connected successfully!');
-      // Set balance based on wagmi hook's balance
-      setBalance(Number(balanceData?.formatted || 0));
     }
-  }, [isConnected, address, balanceData]);
+  }, [connected, address]);
+
 
   // Connect to demo wallet
   const connect = async () => {
@@ -65,40 +60,36 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({
     }
   };
 
-  // Connect to actual wallet
+
   const connectWallet = async () => {
     if (!isConnected) {
-      // Open connection modal if wallet is not connected
-      openConnectModal();
+      openConnectModal?.();
+      return;
     }
-    if (isConnected && address) {
+
+    if (address) {
       setCurrentAddress(address);
       setConnected(true);
       toast.success('Wallet connected successfully!');
-      // Set balance after wallet is connected
-      setBalance(Number(balanceData?.formatted || 0));
+
+      try {
+        const rawBalance = await contractUSDC.methods.getBalance(address).call();
+        const formatted = web3.utils.fromWei(rawBalance, 'ether');
+        setBalance(Number(formatted));
+        console.log('Balance:', formatted);
+      } catch (error) {
+        console.error('Failed to fetch balance:', error);
+        toast.error('Failed to fetch balance');
+      }
     }
   };
 
-  // Disconnect wallet
+
   const disconnect = () => {
     setCurrentAddress('');
     setConnected(false);
     localStorage.removeItem('pharos_connected');
     toast.info('Wallet disconnected');
-  };
-
-  // Get balance manually (if needed)
-  const getBalance = async (address: string) => {
-    try {
-      const rawBalance = await contractUSDC.balanceOf(address);
-      const decimals = await contractUSDC.decimals();
-      const balanceInDecimal = formatUnits(rawBalance, decimals);
-      setBalance(Number(balanceInDecimal));
-    } catch (error) {
-      console.error('Error fetching balance:', error);
-      toast.error('Failed to fetch balance');
-    }
   };
 
   return (

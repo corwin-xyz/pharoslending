@@ -19,7 +19,7 @@ import { calculateRequiredCollateral } from '@/lib/utils';
 import { Loader2 } from 'lucide-react';
 
 export default function Borrow() {
-  const { isConnected, balance } = useWallet();
+  const { connected, balance } = useWallet();
   const { userData, borrowFunds, repayLoan } = useUserData();
   
   const [borrowAmount, setBorrowAmount] = useState('');
@@ -39,12 +39,12 @@ export default function Borrow() {
   }, [borrowAmount, userData.collateralRatio]);
 
   const handleMaxBorrow = () => {
-    const maxBorrowable = Math.min(balance.PHAR / userData.collateralRatio, 1000);
+    const maxBorrowable = Math.min(balance.PTT / userData.collateralRatio, 1000);
     setBorrowAmount(maxBorrowable.toString());
   };
 
   const handleMaxRepay = () => {
-    const maxRepayable = Math.min(userData.borrowedAmount, balance.USDP);
+    const maxRepayable = Math.min(userData.borrowedAmount, balance.USDC);
     setRepayAmount(maxRepayable.toString());
   };
 
@@ -54,8 +54,8 @@ export default function Borrow() {
       return;
     }
     
-    if (requiredCollateral > balance.PHAR) {
-      toast.error(`Insufficient PHAR for collateral. You need ${requiredCollateral.toFixed(2)} PHAR`);
+    if (requiredCollateral > balance.PTT) {
+      toast.error(`Insufficient PTT for collateral. You need ${requiredCollateral.toFixed(2)} PTT`);
       return;
     }
     
@@ -69,8 +69,8 @@ export default function Borrow() {
       return;
     }
     
-    if (parseFloat(repayAmount) > balance.USDP) {
-      toast.error("Insufficient USDP balance");
+    if (parseFloat(repayAmount) > balance.USDC) {
+      toast.error("Insufficient USDC balance");
       return;
     }
     
@@ -89,11 +89,11 @@ export default function Borrow() {
     setTimeout(() => {
       if (isBorrow) {
         borrowFunds(parseFloat(borrowAmount), requiredCollateral);
-        toast.success(`Successfully borrowed ${borrowAmount} USDP`);
+        toast.success(`Successfully borrowed ${borrowAmount} USDC`);
         setBorrowAmount('');
       } else {
         repayLoan(parseFloat(repayAmount));
-        toast.success(`Successfully repaid ${repayAmount} USDP`);
+        toast.success(`Successfully repaid ${repayAmount} USDC`);
         setRepayAmount('');
       }
       
@@ -102,7 +102,7 @@ export default function Borrow() {
     }, 2000);
   };
 
-  if (!isConnected) {
+  if (!connected) {
     return (
       <div className="container mx-auto max-w-7xl py-10">
         <Card className="w-full max-w-md mx-auto">
@@ -118,15 +118,15 @@ export default function Borrow() {
   if (isConfirming) {
     const details = isBorrow
       ? [
-          { label: "Amount to borrow", value: `${borrowAmount} USDP` },
-          { label: "Required collateral", value: `${requiredCollateral.toFixed(2)} PHAR` },
+          { label: "Amount to borrow", value: `${borrowAmount} USDC` },
+          { label: "Required collateral", value: `${requiredCollateral.toFixed(2)} PTT` },
           { label: "Collateral ratio", value: `${(userData.collateralRatio * 100).toFixed(0)}%` },
           { label: "Interest Rate", value: "6.5% APY" },
         ]
       : [
-          { label: "Amount to repay", value: `${repayAmount} USDP` },
-          { label: "Remaining debt", value: `${(userData.borrowedAmount - parseFloat(repayAmount)).toFixed(2)} USDP` },
-          { label: "Collateral to return", value: `${((parseFloat(repayAmount) / userData.borrowedAmount) * userData.collateralAmount).toFixed(2)} PHAR` },
+          { label: "Amount to repay", value: `${repayAmount} USDC` },
+          { label: "Remaining debt", value: `${(userData.borrowedAmount - parseFloat(repayAmount)).toFixed(2)} USDC` },
+          { label: "Collateral to return", value: `${((parseFloat(repayAmount) / userData.borrowedAmount) * userData.collateralAmount).toFixed(2)} PTT` },
         ];
 
     return (
@@ -160,11 +160,11 @@ export default function Borrow() {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1">
                       <p className="text-sm font-medium">Your Borrowed</p>
-                      <p className="text-2xl font-bold">{userData.borrowedAmount.toFixed(2)} USDP</p>
+                      <p className="text-2xl font-bold">{userData.borrowedAmount.toFixed(2)} USDC</p>
                     </div>
                     <div className="space-y-1">
                       <p className="text-sm font-medium">Collateral Locked</p>
-                      <p className="text-2xl font-bold">{userData.collateralAmount.toFixed(2)} PHAR</p>
+                      <p className="text-2xl font-bold">{userData.collateralAmount.toFixed(2)} PTT</p>
                     </div>
                   </div>
                   
@@ -205,7 +205,7 @@ export default function Borrow() {
           <Card>
             <CardHeader>
               <CardTitle>Manage Borrowing</CardTitle>
-              <CardDescription>Borrow USDP or repay your loan</CardDescription>
+              <CardDescription>Borrow USDC or repay your loan</CardDescription>
             </CardHeader>
             <CardContent>
               <Tabs defaultValue={userData.borrowedAmount > 0 ? "repay" : "borrow"} className="w-full">
@@ -219,7 +219,7 @@ export default function Borrow() {
                     value={borrowAmount}
                     onChange={setBorrowAmount}
                     onMax={handleMaxBorrow}
-                    token="USDP"
+                    token="USDC"
                     label="Borrow Amount"
                   />
                   
@@ -229,11 +229,11 @@ export default function Borrow() {
                       <div className="mt-2 space-y-1">
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Amount</span>
-                          <span>{borrowAmount} USDP</span>
+                          <span>{borrowAmount} USDC</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Required Collateral</span>
-                          <span>{requiredCollateral.toFixed(2)} PHAR</span>
+                          <span>{requiredCollateral.toFixed(2)} PTT</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Collateral Ratio</span>
@@ -253,8 +253,8 @@ export default function Borrow() {
                     value={repayAmount}
                     onChange={setRepayAmount}
                     onMax={handleMaxRepay}
-                    max={Math.min(userData.borrowedAmount, balance.USDP)}
-                    token="USDP"
+                    max={Math.min(userData.borrowedAmount, balance.USDC)}
+                    token="USDC"
                     label="Repay Amount"
                   />
                   
@@ -264,18 +264,18 @@ export default function Borrow() {
                       <div className="mt-2 space-y-1">
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Amount to Repay</span>
-                          <span>{repayAmount} USDP</span>
+                          <span>{repayAmount} USDC</span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Remaining Debt</span>
                           <span>
-                            {Math.max(0, userData.borrowedAmount - parseFloat(repayAmount)).toFixed(2)} USDP
+                            {Math.max(0, userData.borrowedAmount - parseFloat(repayAmount)).toFixed(2)} USDC
                           </span>
                         </div>
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Collateral to Return</span>
                           <span>
-                            {((parseFloat(repayAmount) / userData.borrowedAmount) * userData.collateralAmount).toFixed(2)} PHAR
+                            {((parseFloat(repayAmount) / userData.borrowedAmount) * userData.collateralAmount).toFixed(2)} PTT
                           </span>
                         </div>
                       </div>
@@ -291,18 +291,18 @@ export default function Borrow() {
                   disabled={
                     !repayAmount || 
                     parseFloat(repayAmount) <= 0 || 
-                    parseFloat(repayAmount) > balance.USDP || 
+                    parseFloat(repayAmount) > balance.USDC || 
                     parseFloat(repayAmount) > userData.borrowedAmount
                   }
                 >
-                  Repay USDP
+                  Repay USDC
                 </Button>
               ) : (
                 <Button 
                   onClick={handleBorrow} 
-                  disabled={!borrowAmount || parseFloat(borrowAmount) <= 0 || requiredCollateral > balance.PHAR}
+                  disabled={!borrowAmount || parseFloat(borrowAmount) <= 0 || requiredCollateral > balance.PTT}
                 >
-                  Borrow USDP
+                  Borrow USDC
                 </Button>
               )}
             </CardFooter>
@@ -312,7 +312,7 @@ export default function Borrow() {
         <Card>
           <CardHeader>
             <CardTitle>How Borrowing Works</CardTitle>
-            <CardDescription>Understanding the Pharos Credit borrowing mechanism</CardDescription>
+            <CardDescription>Understanding the PTTos Credit borrowing mechanism</CardDescription>
           </CardHeader>
           <CardContent className="grid gap-4 md:grid-cols-3">
             <div className="space-y-2">
@@ -321,16 +321,16 @@ export default function Borrow() {
               </div>
               <h3 className="font-semibold">Provide Collateral</h3>
               <p className="text-sm text-muted-foreground">
-                Deposit PHAR tokens as collateral based on your credit score. Higher scores require less collateral.
+                Deposit PTT tokens as collateral based on your credit score. Higher scores require less collateral.
               </p>
             </div>
             <div className="space-y-2">
               <div className="h-10 w-10 rounded-full bg-primary/20 text-primary flex items-center justify-center">
                 2
               </div>
-              <h3 className="font-semibold">Borrow USDP</h3>
+              <h3 className="font-semibold">Borrow USDC</h3>
               <p className="text-sm text-muted-foreground">
-                Borrow USDP against your collateral. The collateral is restaked to earn additional yield.
+                Borrow USDC against your collateral. The collateral is restaked to earn additional yield.
               </p>
             </div>
             <div className="space-y-2">
