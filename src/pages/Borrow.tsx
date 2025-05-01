@@ -19,7 +19,7 @@ import { calculateRequiredCollateral } from '@/lib/utils';
 import { Loader2 } from 'lucide-react';
 
 export default function Borrow() {
-  const { connected, balance } = useWallet();
+  const { connected, balance, balanceUSDC, balanceETH } = useWallet();
   const { userData, borrowFunds, repayLoan } = useUserData();
   
   const [borrowAmount, setBorrowAmount] = useState('');
@@ -39,12 +39,12 @@ export default function Borrow() {
   }, [borrowAmount, userData.collateralRatio]);
 
   const handleMaxBorrow = () => {
-    const maxBorrowable = Math.min(balance.PTT / userData.collateralRatio, 1000);
+    const maxBorrowable = Math.min(balanceETH / userData.collateralRatio, 1000);
     setBorrowAmount(maxBorrowable.toString());
   };
 
   const handleMaxRepay = () => {
-    const maxRepayable = Math.min(userData.borrowedAmount, balance.USDC);
+    const maxRepayable = Math.min(userData.borrowedAmount, balanceUSDC);
     setRepayAmount(maxRepayable.toString());
   };
 
@@ -54,7 +54,7 @@ export default function Borrow() {
       return;
     }
     
-    if (requiredCollateral > balance.PTT) {
+    if (requiredCollateral > balanceETH) {
       toast.error(`Insufficient PTT for collateral. You need ${requiredCollateral.toFixed(2)} PTT`);
       return;
     }
@@ -69,7 +69,7 @@ export default function Borrow() {
       return;
     }
     
-    if (parseFloat(repayAmount) > balance.USDC) {
+    if (parseFloat(repayAmount) > balanceUSDC) {
       toast.error("Insufficient USDC balance");
       return;
     }
@@ -164,7 +164,7 @@ export default function Borrow() {
                     </div>
                     <div className="space-y-1">
                       <p className="text-sm font-medium">Collateral Locked</p>
-                      <p className="text-2xl font-bold">{userData.collateralAmount.toFixed(2)} PTT</p>
+                      <p className="text-2xl font-bold">{userData.collateralAmount.toFixed(2)} ETH</p>
                     </div>
                   </div>
                   
@@ -253,7 +253,7 @@ export default function Borrow() {
                     value={repayAmount}
                     onChange={setRepayAmount}
                     onMax={handleMaxRepay}
-                    max={Math.min(userData.borrowedAmount, balance.USDC)}
+                    max={Math.min(userData.borrowedAmount, balanceUSDC)}
                     token="USDC"
                     label="Repay Amount"
                   />
@@ -291,7 +291,7 @@ export default function Borrow() {
                   disabled={
                     !repayAmount || 
                     parseFloat(repayAmount) <= 0 || 
-                    parseFloat(repayAmount) > balance.USDC || 
+                    parseFloat(repayAmount) > balanceUSDC || 
                     parseFloat(repayAmount) > userData.borrowedAmount
                   }
                 >
@@ -300,7 +300,7 @@ export default function Borrow() {
               ) : (
                 <Button 
                   onClick={handleBorrow} 
-                  disabled={!borrowAmount || parseFloat(borrowAmount) <= 0 || requiredCollateral > balance.PTT}
+                  disabled={!borrowAmount || parseFloat(borrowAmount) <= 0 || requiredCollateral > balanceETH}
                 >
                   Borrow USDC
                 </Button>

@@ -71,7 +71,7 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({
     try {
       const rawBalance = await contractUSDC.methods.getBalance(addr).call();
       const formatted = web3.utils.fromWei(rawBalance, 'ether');
-      setBalance(Number(formatted));
+      setBalanceUSDC(Number(formatted));
       console.log('Balance updated:', formatted);
     } catch (error) {
       console.error('Failed to fetch balance:', error);
@@ -120,7 +120,10 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({
           .call();
         const formatted = web3.utils.fromWei(rawBalance, 'ether');
         setBalanceUSDC(Number(formatted));
-        const rawBalance2 = await contractETH.methods.getBalance(address).call();
+
+        const rawBalance2 = await contractETH.methods
+          .getBalance(address)
+          .call();
         const formatted2 = web3.utils.fromWei(rawBalance2, 'ether');
         setBalanceETH(Number(formatted2));
         console.log('Balance:', formatted);

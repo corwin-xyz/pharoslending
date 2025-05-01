@@ -9,7 +9,7 @@ interface TokenAmountInputProps {
   onChange: (value: string) => void;
   onMax?: () => void;
   max?: number;
-  token: 'PHAR' | 'USDP';
+  token: 'PHAR' | 'USDP' | 'USDC' | 'ETH';
   label?: string;
   disabled?: boolean;
 }

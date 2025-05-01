@@ -4,8 +4,8 @@ pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
+// import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+// import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./CreditScoring.sol";   
 import "./RestakingIntegration.sol";
@@ -114,6 +114,7 @@ contract PharosLending is ReentrancyGuard, Pausable, Ownable {
         // Check if protocol has enough liquidity
         uint256 availableLiquidity = usdpToken.balanceOf(address(this));
         require(availableLiquidity >= amount, "Insufficient protocol liquidity");
+        
         
         // Record interaction for credit score
         creditScoring.recordInteraction(msg.sender);

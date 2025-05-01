@@ -14,11 +14,9 @@ import { useUserData } from '@/hooks/useUserData';
 import TokenAmountInput from '@/components/TokenAmountInput';
 import TransactionConfirmation from '@/components/TransactionConfirmation';
 import { toast } from '@/lib/toast';
-import { Loader2 } from 'lucide-react';
-import { formatCurrency } from '@/lib/utils';
 
 export default function Lend() {
-  const { connected, balance } = useWallet();
+  const { connected, balance, balanceUSDC } = useWallet();
   const { userData, lendFunds, withdrawLending } = useUserData();
   
   const [depositAmount, setDepositAmount] = useState('');
@@ -29,7 +27,7 @@ export default function Lend() {
   const [activeTab, setActiveTab] = useState('deposit');
 
   const handleMaxDeposit = () => {
-    setDepositAmount(balance.USDC.toString());
+    setDepositAmount(balanceUSDC.toString());
   };
 
   const handleMaxWithdraw = () => {
@@ -42,7 +40,7 @@ export default function Lend() {
       return;
     }
     
-    if (parseFloat(depositAmount) > balance.USDC) {
+    if (parseFloat(depositAmount) > balanceUSDC) {
       toast.error("Insufficient balance");
       return;
     }
@@ -141,7 +139,7 @@ export default function Lend() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1">
                     <p className="text-sm font-medium">Your Supplied</p>
-                    <p className="text-2xl font-bold">{userData.lentAmount.toFixed(2)} USDC</p>
+                    <p className="text-2xl font-bold">{0} USDC</p>
                   </div>
                   <div className="space-y-1">
                     <p className="text-sm font-medium">Total Earnings</p>
