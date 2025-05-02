@@ -16,7 +16,7 @@ import TransactionConfirmation from '@/components/TransactionConfirmation';
 import { toast } from '@/lib/toast';
 
 export default function Lend() {
-  const { connected, balance, balanceUSDC } = useWallet();
+  const { connected, balance, balanceUSDC, handleLend } = useWallet();
   const { userData, lendFunds, withdrawLending } = useUserData();
   
   const [depositAmount, setDepositAmount] = useState('');
@@ -64,24 +64,36 @@ export default function Lend() {
     setIsConfirming(true);
   };
 
-  const confirmTransaction = () => {
-    setIsProcessing(true);
-    
-    setTimeout(() => {
-      if (isDeposit) {
-        lendFunds(parseFloat(depositAmount));
-        toast.success(`Successfully deposited ${depositAmount} USDC`);
-        setDepositAmount('');
-      } else {
-        withdrawLending(parseFloat(withdrawAmount));
-        toast.success(`Successfully withdrawn ${withdrawAmount} USDC`);
-        setWithdrawAmount('');
-      }
-      
-      setIsProcessing(false);
-      setIsConfirming(false);
-    }, 2000);
-  };
+ const confirmTransaction = async () => {
+   setIsProcessing(true);
+
+   try {
+     if (isDeposit) {
+       const amount = parseFloat(depositAmount);
+
+       // Tunggu konfirmasi user dan transaksi selesai
+       await handleLend(amount);
+       await lendFunds(amount);
+
+       toast.success(`Successfully deposited ${depositAmount} USDC`);
+       setDepositAmount('');
+     } else {
+       const amount = parseFloat(withdrawAmount);
+
+       await withdrawLending(amount);
+
+       toast.success(`Successfully withdrawn ${withdrawAmount} USDC`);
+       setWithdrawAmount('');
+     }
+   } catch (err) {
+     console.error('Transaction failed:', err);
+     toast.error('Transaction failed or rejected');
+   } finally {
+     setIsProcessing(false);
+     setIsConfirming(false);
+   }
+ };
+
 
   if (!connected) {
     return (
@@ -203,7 +215,7 @@ export default function Lend() {
                     value={depositAmount}
                     onChange={setDepositAmount}
                     onMax={handleMaxDeposit}
-                    max={balance.USDC}
+                    max={balanceUSDC}
                     token="USDC"
                     label="Deposit Amount"
                   />
@@ -267,7 +279,7 @@ export default function Lend() {
               {activeTab === "deposit" ? (
                 <Button 
                   onClick={handleDeposit} 
-                  disabled={!depositAmount || parseFloat(depositAmount) <= 0 || parseFloat(depositAmount) > balance.USDC}
+                  disabled={!depositAmount || parseFloat(depositAmount) <= 0 || parseFloat(depositAmount) > balanceUSDC}
                 >
                   Deposit USDC
                 </Button>

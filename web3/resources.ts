@@ -1,5 +1,6 @@
 import USDCToken from './ABI/USDCToken.json'
 import ETHToken from './ABI/ETHToken.json'
+import lendBorrow from './ABI/lendBorrow.json'
 
 export const contractsData = {
   USDC: {
@@ -9,6 +10,10 @@ export const contractsData = {
   ETH: {
     address: `0x1b71576f05579419ecc1b879fdedc5fe4a5fafee`,
     abi: ETHToken,
+  },
+  lendBorrow: {
+    address: `0x604d0707b02203d046cf7ebd2867094b4a9358a3`,
+    abi: lendBorrow
   },
 };
 

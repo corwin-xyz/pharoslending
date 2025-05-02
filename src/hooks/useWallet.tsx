@@ -9,14 +9,11 @@ import { toast } from '@/lib/toast';
 import { MOCK_WALLET_ADDRESS } from '@/lib/mockData';
 import { web3, contractUSDC } from '../../web3/contractUSDC';
 import { contractETH } from '../../web3/contractETH';
+import { contractLendBorrow } from '../../web3/contractLendBorrow';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
-import {
-  useAccount,
-  useBalance,
-  useWriteContract,
-  useReadContract,
-} from 'wagmi';
+import { useAccount, useWriteContract } from 'wagmi';
 import { log } from 'console';
+import { contractsData } from '../../web3/resources';
 
 interface WalletContextProps {
   currentAddress: string;
@@ -25,6 +22,7 @@ interface WalletContextProps {
   connect: () => Promise<void>;
   disconnect: () => void;
   connectWallet: () => Promise<void>;
+  handleLend: (amount: number) => Promise<void>;
   balanceUSDC: number;
   balanceETH: number;
 }
@@ -141,6 +139,38 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({
     toast.info('Wallet disconnected');
   };
 
+  const getUSDCBalanceContract = async () => {
+    const balance = await contractUSDC.balanceOf(contractsData.lendBorrow.address);
+    const formatted = web3.utils.fromWei(balance, 'ether');
+    console.log(`USDC in contract: ${formatted}`);
+    return formatted;
+  }
+
+  const handleLend = async (amount: number) => {
+    try {
+      if (!currentAddress) {
+        toast.error('Wallet not connected');
+        return;
+      }
+
+      const weiAmount = web3.utils.toWei(amount.toString(), 'mwei'); 
+
+      await contractUSDC.methods
+        .approve(contractsData.lendBorrow.address, weiAmount)
+        .send({ from: currentAddress });
+
+      await contractLendBorrow.methods
+        .lend(weiAmount)
+        .send({ from: currentAddress });
+
+      toast.success('Lend successful');
+    } catch (error) {
+      console.error(error);
+      toast.error('Failed to lend USDC');
+    }
+  };
+
+
   return (
     <WalletContext.Provider
       value={{
@@ -152,6 +182,7 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({
         connectWallet,
         balanceUSDC,
         balanceETH,
+        handleLend,
       }}
     >
       {children}
