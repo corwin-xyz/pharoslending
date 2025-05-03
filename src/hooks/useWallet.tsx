@@ -12,6 +12,7 @@ import { contractLendBorrow, web3 } from '../../web3/contractLendBorrow';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
 import { useAccount } from 'wagmi';
 import { walletActivity, contractsData } from '../../web3/resources';
+import BN from 'bn.js';
 
 interface WalletContextProps {
   currentAddress: string;
@@ -32,6 +33,7 @@ interface WalletContextProps {
   handleRepayLoan: () => Promise<void>;
   getSupplyUSDC: () => Promise<void>;
   suplyUsdc: number;
+  mintUSDC: (recipientAddress: string, amount: number) => Promise<void>;
 }
 
 const WalletContext = createContext<WalletContextProps>(
@@ -76,7 +78,7 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({
     collateralBalance,
     borrowed,
     collateralBalance,
-    suplyUsdc
+    suplyUsdc,
   ]);
 
   // Handle account and network change manually
@@ -126,7 +128,7 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({
     balance,
     collateralBalance,
     borrowed,
-    suplyUsdc
+    suplyUsdc,
   ]);
 
   const fetchBalanceUSDC = async (addr: string) => {
@@ -397,6 +399,22 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({
     }
   };
 
+ const mintUSDC = async (recipientAddress, amount) => {
+   try {
+     const decimals = await contractUSDC.methods.decimals().call();
+     const ten = new BN(10);
+     const amountInWei = new BN(amount).mul(ten.pow(new BN(decimals)));
+
+     await contractUSDC.methods
+       .mint(recipientAddress, amountInWei.toString())
+       .send({ from: currentAddress });
+
+     console.log('Minting success');
+   } catch (err) {
+     console.error('Minting failed:', err);
+   }
+ };
+
   return (
     <WalletContext.Provider
       value={{
@@ -418,6 +436,7 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({
         handleRepayLoan,
         getSupplyUSDC,
         suplyUsdc,
+        mintUSDC,
       }}
     >
       {children}

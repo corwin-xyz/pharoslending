@@ -14,6 +14,7 @@ import { useUserData } from '@/hooks/useUserData';
 import TokenAmountInput from '@/components/TokenAmountInput';
 import TransactionConfirmation from '@/components/TransactionConfirmation';
 import { toast } from '@/lib/toast';
+import { formatCurrency } from '@/lib/utils';
 
 export default function Lend() {
   const { connected, balance, balanceUSDC, handleLend, handleWithdrawal, getSupplyUSDC, suplyUsdc } = useWallet();

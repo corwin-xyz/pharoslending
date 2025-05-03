@@ -44,7 +44,7 @@ export default function Borrow() {
     if (borrowAmount && parseFloat(borrowAmount) > 0) {
       const collateral = calculateRequiredCollateral(
         parseFloat(borrowAmount),
-        userData.collateralRatio
+        1/2000
       );
       setRequiredCollateral(collateral);
     } else {
@@ -71,11 +71,16 @@ export default function Borrow() {
       return;
     }
 
-    if (requiredCollateral > balanceETH) {
+    if (requiredCollateral >= collateralBalance) {
+      if (activityScore > 700) {
+        setIsBorrow(true);
+        setIsConfirming(true);
+        return;
+      }
       toast.error(
-        `Insufficient ETH for collateral. You need ${requiredCollateral.toFixed(
+        `Insufficient ETH for collateral. You need ${(requiredCollateral+collateralBalance).toFixed(
           2
-        )} PTT`
+        )} ETH`
       );
       return;
     }
@@ -299,7 +304,7 @@ export default function Borrow() {
                           <span className='text-muted-foreground'>
                             Required Collateral
                           </span>
-                          <span>{requiredCollateral.toFixed(2)} PTT</span>
+                          <span>{requiredCollateral.toFixed(2)} ETH</span>
                         </div>
                         <div className='flex justify-between'>
                           <span className='text-muted-foreground'>
@@ -389,7 +394,7 @@ export default function Borrow() {
                   disabled={
                     !borrowAmount ||
                     parseFloat(borrowAmount) <= 0 ||
-                    requiredCollateral > balanceETH
+                    (requiredCollateral) > balanceETH*2000
                   }
                 >
                   Borrow USDC
@@ -413,7 +418,7 @@ export default function Borrow() {
               </div>
               <h3 className='font-semibold'>Provide Collateral</h3>
               <p className='text-sm text-muted-foreground'>
-                Deposit PTT tokens as collateral based on your credit score.
+                Deposit wBTC/ETH tokens as collateral based on your credit score.
                 Higher scores require less collateral.
               </p>
             </div>
