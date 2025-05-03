@@ -14,7 +14,7 @@ interface NavbarProps {
   setSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 export default function Navbar({ sidebarOpen, setSidebarOpen }: NavbarProps) {
-  const { currentAddress, connected, connect, disconnect, connectWallet } =
+  const { currentAddress, connected, disconnect, connectWallet } =
     useWallet();
   const { openConnectModal } = useConnectModal(); // <- ambil openConnectModal function
 

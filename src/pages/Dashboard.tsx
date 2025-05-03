@@ -26,7 +26,9 @@ import { useWallet } from '../../src/hooks/useWallet';
 
 export default function Dashboard() {
   const { userData, refreshUserData } = useUserData();
-  const { balance, balanceETH, balanceUSDC, activityScore } = useWallet();
+  const { balance, balanceETH, balanceUSDC, activityScore, collateralBalance } = useWallet();
+
+  const totalLocked = balance + (collateralBalance*2000)
 
   // Simulate updating data periodically
   useEffect(() => {
@@ -113,7 +115,7 @@ export default function Dashboard() {
               <StatsCard
                 title='Total Value Locked'
                 value={formatCurrency(
-                  userData.lentAmount + userData.collateralAmount
+                  totalLocked
                 )}
                 description='All your positions'
                 icon={<ShieldCheck />}

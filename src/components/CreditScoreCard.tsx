@@ -39,13 +39,7 @@ export default function CreditScoreCard({ className }: CreditScoreCardProps) {
   };
 
 
-  // Dynamically update the credit score when balances or activity score change
-  // useEffect(() => {
-  //   const calculatedScore = getCreditScore(balanceUSDC, balanceETH);
-  //   setCreditScore();
-  // }, [balanceUSDC, balanceETH, actifityScore]);
-
-  const shouldShowDepositButton = activityScore < 700; // Show deposit button if credit score is less than 700
+  const shouldShowDepositButton = activityScore < 800; // Show deposit button if credit score is less than 700
 
   return (
     <Card className={className}>

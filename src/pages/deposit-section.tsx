@@ -16,7 +16,7 @@ const assets = [
     symbol: "wBTC",
     icon: Bitcoin,
     balance: 0.05,
-    value: 1500,
+    value: 97000,
     apy: 4.5,
     restakingApy: 2.0,
   },
@@ -26,7 +26,7 @@ const assets = [
     symbol: "wETH",
     icon: Ethereum,
     balance: 1.2,
-    value: 1200,
+    value: 2000,
     apy: 3.8,
     restakingApy: 1.5,
   },
@@ -115,7 +115,7 @@ export default function DepositSection() {
                       </div>
                       <div className="text-right">
                         <p className="font-medium">0.025 wBTC</p>
-                        <p className="text-sm text-muted-foreground">$1,500</p>
+                        <p className="text-sm text-muted-foreground">$97,000</p>
                       </div>
                     </div>
                     <div className="space-y-3 p-4">
@@ -150,7 +150,7 @@ export default function DepositSection() {
                       </div>
                       <div className="text-right">
                         <p className="font-medium">0.5 wETH</p>
-                        <p className="text-sm text-muted-foreground">$1,200</p>
+                        <p className="text-sm text-muted-foreground">$2,000</p>
                       </div>
                     </div>
                     <div className="space-y-3 p-4">

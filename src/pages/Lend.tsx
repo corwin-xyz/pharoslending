@@ -16,7 +16,7 @@ import TransactionConfirmation from '@/components/TransactionConfirmation';
 import { toast } from '@/lib/toast';
 
 export default function Lend() {
-  const { connected, balance, balanceUSDC, handleLend, handleWithdrawal } = useWallet();
+  const { connected, balance, balanceUSDC, handleLend, handleWithdrawal, getSupplyUSDC, suplyUsdc } = useWallet();
   const { userData, lendFunds, withdrawLending } = useUserData();
   
   const [depositAmount, setDepositAmount] = useState('');
@@ -25,6 +25,7 @@ export default function Lend() {
   const [isDeposit, setIsDeposit] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
   const [activeTab, setActiveTab] = useState('deposit');
+
 
   const handleMaxDeposit = () => {
     setDepositAmount(balanceUSDC.toString());
@@ -130,7 +131,7 @@ export default function Lend() {
       : [
           { label: "Amount to withdraw", value: `${withdrawAmount} USDC` },
           { label: "Current Balance", value: `${balance.toFixed(2)} USDC` },
-          { label: "Total Earnings", value: `${(balance).toFixed(2)} USDC` }, // Placeholder
+          { label: "Total Earnings", value: `${(0)} USDC` }, // Placeholder
         ];
 
     return (
@@ -202,7 +203,7 @@ export default function Lend() {
                       <p className='text-xs text-muted-foreground'>
                         Total Supplied
                       </p>
-                      <p className='text-lg font-bold'>100,250,000 USDC</p>
+                      <p className='text-lg font-bold'>{suplyUsdc}</p>
                     </div>
                     <div>
                       <p className='text-xs text-muted-foreground'>
