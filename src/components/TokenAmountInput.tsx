@@ -37,7 +37,7 @@ export default function TokenAmountInput({
         <Label htmlFor='amount'>{label}</Label>
         {max !== undefined && (
           <span className='text-xs text-muted-foreground'>
-            Available: {balanceUSDC.toFixed(2)} {balance.toFixed(2)}
+            Available: {balanceUSDC.toFixed(2)}
           </span>
         )}
       </div>
