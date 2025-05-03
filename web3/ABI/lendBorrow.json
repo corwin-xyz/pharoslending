@@ -51,6 +51,13 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "repayLoan",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
@@ -113,13 +120,6 @@
     "type": "event"
   },
   {
-    "inputs": [],
-    "name": "repayLoan",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "internalType": "address",
@@ -148,6 +148,25 @@
   {
     "inputs": [],
     "name": "COLLATERAL_RATIO",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "collateralUsers",
     "outputs": [
       {
         "internalType": "uint256",

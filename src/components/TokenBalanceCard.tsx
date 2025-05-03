@@ -51,7 +51,7 @@ export default function TokenBalanceCard({ className }: TokenBalanceCardProps) {
             <div className='flex justify-between'>
               <span className='text-sm text-muted-foreground'>Total Value</span>
               <span className='font-medium'>
-                {formatCurrency(totalBalance)}
+                {formatCurrency(totalBalance)} USD
               </span>
             </div>
           </div>

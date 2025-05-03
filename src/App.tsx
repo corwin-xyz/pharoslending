@@ -18,7 +18,7 @@ import '@rainbow-me/rainbowkit/styles.css';
 import { WagmiProvider, createConfig, http } from 'wagmi';
 import { RainbowKitProvider, getDefaultConfig } from '@rainbow-me/rainbowkit';
 import { arbitrum, lisk, mainnet, sepolia } from 'wagmi/chains';
-import { WagmiConfig } from 'wagmi';
+import DepositSection from '@/pages/deposit-section';
 
 // Inisialisasi Query Client
 const queryClient = new QueryClient();
@@ -53,6 +53,7 @@ const App = () => (
                     <Route path='/analytics' element={<Analytics />} />
                     <Route path='/history' element={<History />} />
                     <Route path='/settings' element={<Settings />} />
+                    <Route path='/deposit' element={<DepositSection />} />
                     <Route path='*' element={<NotFound />} />
                   </Routes>
                 </Layout>

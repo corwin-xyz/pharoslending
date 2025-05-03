@@ -10,7 +10,7 @@ contract LendBorrowWithERC20Collateral is Ownable {
 
     uint256 public constant COLLATERAL_RATIO = 70; // 70%
     uint256 public constant INTEREST_RATE = 5;     // 5%
-    uint256 public constant USDC_DECIMALS = 1e6;   // USDC has 6 decimals
+    uint256 public constant USDC_DECIMALS = 1e18;   // USDC has 18 decimals
 
     struct Loan {
         uint256 collateralAmount;
@@ -20,6 +20,7 @@ contract LendBorrowWithERC20Collateral is Ownable {
 
     mapping(address => Loan) public loans;
     mapping(address => uint256) public lendersBalance;
+    mapping(address => uint256) public lenderCollateralLocked;
 
     constructor(
         address _dummyETH,
@@ -52,6 +53,7 @@ contract LendBorrowWithERC20Collateral is Ownable {
         require(!loans[msg.sender].active, "Loan exists");
 
         require(dummyETH.transferFrom(msg.sender, address(this), collateralAmount), "Collateral transfer failed");
+        lenderCollateralLocked[msg.sender]+=collateralAmount;
 
         uint256 usdcAmount = (collateralAmount * COLLATERAL_RATIO) / 100;
 

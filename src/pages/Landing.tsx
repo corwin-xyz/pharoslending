@@ -3,7 +3,7 @@ import { useWallet } from '@/hooks/useWallet';
 import React from 'react';
 
 const Landing: React.FC = () => {
-    const { connect, connectWallet, disconnect, connected } = useWallet();
+    const { connectWallet, disconnect, connected } = useWallet();
     return (
         <div className="container mt-8 md:pr-32 lg:pr-96">
             <h1 className="text-5xl/[1.1] font-bold text-slate-800">Decentralized Lending with AI Credit Scoring and Restaking</h1>

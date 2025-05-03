@@ -11,20 +11,21 @@ import { web3, contractUSDC } from '../../web3/contractUSDC';
 import { contractETH } from '../../web3/contractETH';
 import { contractLendBorrow } from '../../web3/contractLendBorrow';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
-import { useAccount, useWriteContract } from 'wagmi';
-import { log } from 'console';
+import { useAccount } from 'wagmi';
+import { walletActivity } from '../../web3/resources';
 import { contractsData } from '../../web3/resources';
 
 interface WalletContextProps {
   currentAddress: string;
   connected: boolean;
   balance: number;
-  connect: () => Promise<void>;
   disconnect: () => void;
   connectWallet: () => Promise<void>;
   handleLend: (amount: number) => Promise<void>;
+  handleWithdrawal: (amount: number) => Promise<void>;
   balanceUSDC: number;
   balanceETH: number;
+  activityScore: number;
 }
 
 const WalletContext = createContext<WalletContextProps>(
@@ -36,44 +37,32 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
   const { address, isConnected } = useAccount();
   const { openConnectModal } = useConnectModal();
-  const { writeContract, isPending, isSuccess } = useWriteContract();
 
   const [currentAddress, setCurrentAddress] = useState<string>('');
   const [balance, setBalance] = useState<number>(0);
   const [balanceUSDC, setBalanceUSDC] = useState<number>(0);
   const [balanceETH, setBalanceETH] = useState<number>(0);
-  const [balancePharos, setBalancePharos] = useState<number>(0);
   const [connected, setConnected] = useState(false);
+  const [activityScore, setActivityScore] = useState<number>(0);
 
-  // Update state when wallet is connected
+  // Dynamically fetch all balances and activity score on address change
   useEffect(() => {
-    const { ethereum } = window;
-    if (ethereum) {
-      ethereum.on('accountsChanged', (accounts) => {
-        setCurrentAddress(accounts[0]);
-        toast.success('Account changed');
-        fetchBalanceUSDC(accounts[0]);
-        fetchBalanceETH(accounts[0]);
-      });
-    } else {
-      console.log('MetaMask tidak terdeteksi');
+    if (address) {
+      setCurrentAddress(address);
+      fetchBalanceUSDC(address);
+      fetchBalanceETH(address);
+      fetchBalance(address);
+      fetchActivityScore();
     }
+  }, [address, isConnected, balanceUSDC, balanceETH]);
 
-    return () => {
-      ethereum?.removeListener('accountsChanged', () => {});
-    };
-  }, []);
-
-  // Connect to demo wallet
   const fetchBalanceUSDC = async (addr: string) => {
     try {
       const rawBalance = await contractUSDC.methods.getBalance(addr).call();
       const formatted = web3.utils.fromWei(rawBalance, 'ether');
       setBalanceUSDC(Number(formatted));
-      console.log('Balance updated:', formatted);
     } catch (error) {
-      console.error('Failed to fetch balance:', error);
-      toast.error('Failed to fetch balance');
+      toast.error('Failed to fetch USDC balance');
     }
   };
 
@@ -82,107 +71,135 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({
       const rawBalance = await contractETH.methods.getBalance(addr).call();
       const formatted = web3.utils.fromWei(rawBalance, 'ether');
       setBalanceETH(Number(formatted));
-      console.log('Balance updated:', formatted);
     } catch (error) {
-      console.error('Failed to fetch balance:', error);
+      toast.error('Failed to fetch ETH balance');
+    }
+  };
+
+  const fetchBalance = async (addr: string) => {
+    try {
+      const rawBalance = await contractLendBorrow.methods
+        .lendersBalance(addr)
+        .call();
+      const formatted = web3.utils.fromWei(rawBalance, 'ether');
+      setBalance(Number(formatted));
+    } catch (error) {
       toast.error('Failed to fetch balance');
     }
   };
-  const connect = async () => {
+
+  const fetchActivityScore = async () => {
     try {
-      setCurrentAddress(MOCK_WALLET_ADDRESS);
-      localStorage.setItem('pharos_connected', 'true');
-      toast.success('Demo wallet connected successfully!');
+      const balanceScore = await getCreditScore();
+      const walletScore = await getActivityScoreByWallet();
+      setActivityScore(balanceScore + walletScore);
     } catch (error) {
-      console.error('Error connecting demo wallet:', error);
-      toast.error('Failed to connect demo wallet');
+      toast.error('Failed to fetch activity score');
     }
+  };
+
+  const getCreditScore = async (): Promise<number> => {
+    let creditScore = 0;
+
+    if (balanceUSDC >= 1000 || balanceETH >= 1) {
+      creditScore = 300;
+    } else if (balanceUSDC >= 500 && balanceUSDC < 1000) {
+      creditScore = 200;
+    } else if (balanceUSDC >= 100 && balanceUSDC < 500) {
+      creditScore = 100;
+    } else {
+      creditScore = 50;
+    }
+
+    return creditScore;
+  };
+
+  const getActivityScoreByWallet = async (): Promise<number> => {
+    if (walletActivity.high.includes(currentAddress)) return 500;
+    if (walletActivity.medium.includes(currentAddress)) return 250;
+    if (walletActivity.low.includes(currentAddress)) return 75;
+    return 0;
   };
 
   const connectWallet = async () => {
     if (!isConnected) {
       openConnectModal();
-      // setConnected(true);
       return;
     }
 
-    if (address && isConnected) {
+    if (address) {
       setCurrentAddress(address);
       setConnected(true);
-      localStorage.setItem('pharos_connected', 'true');
       toast.success('Wallet connected successfully!');
-
-      try {
-        const rawBalance = await contractUSDC.methods
-          .getBalance(address)
-          .call();
-        const formatted = web3.utils.fromWei(rawBalance, 'ether');
-        setBalanceUSDC(Number(formatted));
-
-        const rawBalance2 = await contractETH.methods
-          .getBalance(address)
-          .call();
-        const formatted2 = web3.utils.fromWei(rawBalance2, 'ether');
-        setBalanceETH(Number(formatted2));
-        console.log('Balance:', formatted);
-      } catch (error) {
-        console.error('Failed to fetch balance:', error);
-        toast.error('Failed to fetch balance');
-      }
+      fetchBalanceUSDC(address);
+      fetchBalanceETH(address);
+      fetchBalance(address);
+      fetchActivityScore();
     }
   };
 
   const disconnect = () => {
     setCurrentAddress('');
     setConnected(false);
-    localStorage.removeItem('pharos_connected');
+    setBalance(0);
+    setBalanceUSDC(0);
+    setBalanceETH(0);
+    setActivityScore(0);
     toast.info('Wallet disconnected');
   };
 
-  const getUSDCBalanceContract = async () => {
-    const balance = await contractUSDC.balanceOf(contractsData.lendBorrow.address);
-    const formatted = web3.utils.fromWei(balance, 'ether');
-    console.log(`USDC in contract: ${formatted}`);
-    return formatted;
-  }
-
   const handleLend = async (amount: number) => {
+    if (!currentAddress) {
+      toast.error('Wallet not connected');
+      return;
+    }
+
+    const weiAmount = web3.utils.toWei(amount.toString(), 'ether');
     try {
-      if (!currentAddress) {
-        toast.error('Wallet not connected');
-        return;
-      }
-
-      const weiAmount = web3.utils.toWei(amount.toString(), 'mwei'); 
-
       await contractUSDC.methods
         .approve(contractsData.lendBorrow.address, weiAmount)
         .send({ from: currentAddress });
-
       await contractLendBorrow.methods
         .lend(weiAmount)
         .send({ from: currentAddress });
-
+      fetchBalance(currentAddress); // Refresh balance after lending
       toast.success('Lend successful');
     } catch (error) {
-      console.error(error);
       toast.error('Failed to lend USDC');
     }
   };
 
+  const handleWithdrawal = async (amount: number) => {
+    if (!currentAddress) {
+      toast.error('Wallet not connected');
+      return;
+    }
+
+    const weiAmount = web3.utils.toWei(amount.toString(), 'ether');
+    try {
+      await contractLendBorrow.methods
+        .withdrawLend(weiAmount)
+        .send({ from: currentAddress });
+      fetchBalance(currentAddress); // Refresh balance after withdrawal
+      toast.success('Withdraw successful');
+    } catch (error) {
+      toast.error('Failed to withdraw USDC');
+    }
+  };
 
   return (
     <WalletContext.Provider
       value={{
         currentAddress,
-        connected: !!currentAddress,
+        connected,
         balance,
-        connect,
-        disconnect,
         connectWallet,
+        disconnect,
+        handleLend,
+        handleWithdrawal,
         balanceUSDC,
         balanceETH,
-        handleLend,
+        activityScore,
       }}
     >
       {children}
