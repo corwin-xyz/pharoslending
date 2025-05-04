@@ -29,6 +29,7 @@ The platform consists of the following core contracts:
 - Node.js v16+
 - npm or yarn
 - Hardhat
+- Wagmi + RainbowKit
 
 ### Installation
 
@@ -42,7 +43,7 @@ The platform consists of the following core contracts:
    cp .env.example .env
    ```
 
-### Compilation
+### Compilation Smart Contract
 
 Compile the smart contracts:
 
@@ -56,6 +57,12 @@ Run the test suite:
 
 ```
 npx hardhat test
+```
+
+### Running Project
+
+```
+npm run dev
 ```
 
 ### Deployment
@@ -75,7 +82,7 @@ To deploy to Pharos Testnet:
 
 ERC20 token representing the native token of the Pharos ecosystem.
 
-### USDPToken (USDP)
+### USDPToken (USDC)
 
 ERC20 stablecoin used for lending and borrowing within the platform.
 
@@ -83,8 +90,9 @@ ERC20 stablecoin used for lending and borrowing within the platform.
 
 Calculates and manages user credit scores based on:
 - Platform interaction count
-- PHAR token holdings
+- PTT token holdings
 - Repayment history
+- Actifity On Chain
 
 ### RestakingIntegration
 
@@ -93,8 +101,8 @@ Manages the staking of collateral to generate additional yield.
 ### PharosLending
 
 Main contract that handles:
-- USDP deposits and withdrawals
-- Borrowing USDP against PHAR collateral
+- USDC deposits and withdrawals
+- Borrowing USDC against wBTC/ETH collateral
 - Loan repayments
 - Interest accrual for both lenders and borrowers
 
@@ -105,7 +113,3 @@ These contracts implement several security features:
 - Pausable functionality for emergency scenarios
 - Input validation and require statements
 - SafeERC20 for safe token transfers
-
-## License
-
-These contracts are licensed under the MIT License.
