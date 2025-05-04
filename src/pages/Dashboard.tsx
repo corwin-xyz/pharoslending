@@ -43,7 +43,7 @@ export default function Dashboard() {
           <CreditScoreCard />
           <TokenBalanceCard />
           
-          <Card className="w-full mb-4">
+          <Card className="w-full">
             <CardHeader className="pb-2 w-full">
               <CardTitle className="text-lg">Quick Actions</CardTitle>
             </CardHeader>

@@ -4,6 +4,7 @@ import SidebarNav from './SidebarNav';
 import { useWallet } from '@/hooks/useWallet';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
+import Landing from '@/pages/Landing';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -26,7 +27,7 @@ export default function Layout({ children }: LayoutProps) {
       <Navbar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
       <div className="flex-1 flex relative"> {/* Added relative positioning */}
-        {isConnected && (
+        {isConnected ? (
           <>
             {/* Sidebar */}
             <aside
@@ -55,12 +56,14 @@ export default function Layout({ children }: LayoutProps) {
               className={cn(
                 "flex-1 pt-6 px-4 transition-all duration-300 ease-in-out overflow-y-auto overflow-x-hidden",
                 // Add margin-left only on desktop when sidebar is statically positioned
-                isConnected ? "md:ml-64" : ""
+                // isConnected ? "md:ml-64" : ""
               )}
             >
               {children}
             </main>
           </>
+        ) : (
+          <Landing />
         )}
       </div>
     </div>
