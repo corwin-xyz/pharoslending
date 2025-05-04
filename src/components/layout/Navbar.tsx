@@ -41,15 +41,6 @@ export default function Navbar({ sidebarOpen, setSidebarOpen }: NavbarProps) {
 
         <div className='flex items-center space-x-4'>
           <div className='flex gap-x-10 p-4'>
-            <Button
-              size='sm'
-              variant='default'
-              onClick={() =>
-                mintUSDC('0xa983919B14E6e21A165f8108316caaa9e7176963', 1000000000)
-              }
-            >
-              minting
-            </Button>
             <a href='#' className='text-gray-700 font-semibold'>
               Products
             </a>
