@@ -12,7 +12,7 @@ export const contractsData = {
     abi: ETHToken,
   },
   lendBorrow: {
-    address: `0xc6c727727b16dcb777890941611b5ce9f34e30ac`,
+    address: `0xf8788ed8a82ef5fa566a32cb7298d51e8d9de787`,
     abi: lendBorrow,
   },
 };

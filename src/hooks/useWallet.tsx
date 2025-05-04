@@ -75,7 +75,6 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({
     isConnected,
     balanceETH,
     balanceUSDC,
-    collateralBalance,
     borrowed,
     collateralBalance,
     suplyUsdc,
@@ -92,7 +91,6 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({
         const newAddress = accounts[0];
         setCurrentAddress(newAddress);
         setConnected(true);
-        toast.info('Account changed');
         fetchBalanceUSDC(newAddress);
         fetchBalanceETH(newAddress);
         fetchBalance(newAddress);
@@ -100,6 +98,8 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({
         getUserCollateral();
         getUserBorrowed();
         getUserStatusLoan();
+        toast.info('Account changed');
+        
       }
     };
 
@@ -206,13 +206,13 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({
       setCurrentAddress(address);
       setConnected(true);
       toast.success('Wallet connected successfully!');
-      await fetchBalanceUSDC(address);
-      await fetchBalanceETH(address);
-      await fetchBalance(address);
-      await fetchActivityScore();
-      await getUserCollateral();
-      await getUserBorrowed();
-      await getSupplyUSDC();
+      fetchBalanceUSDC(address);
+      fetchBalanceETH(address);
+      fetchBalance(address);
+      fetchActivityScore();
+      getUserCollateral();
+      getUserBorrowed();
+      getSupplyUSDC();
     }
   };
 
@@ -236,10 +236,10 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({
       await contractLendBorrow.methods
         .lend(weiAmount)
         .send({ from: currentAddress });
-      await fetchBalance(currentAddress);
-      await fetchBalanceETH(currentAddress);
-      await fetchBalanceUSDC(currentAddress);
-      await getSupplyUSDC();
+      fetchBalance(currentAddress);
+      fetchBalanceETH(currentAddress);
+      fetchBalanceUSDC(currentAddress);
+      getSupplyUSDC();
 
       toast.success('Lend successful');
     } catch (error) {
@@ -258,10 +258,10 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({
       await contractLendBorrow.methods
         .withdrawLend(weiAmount)
         .send({ from: currentAddress });
-      await fetchBalance(currentAddress);
-      await fetchBalanceETH(currentAddress);
-      await fetchBalanceUSDC(currentAddress);
-      await getSupplyUSDC();
+      fetchBalance(currentAddress);
+      fetchBalanceETH(currentAddress);
+      fetchBalanceUSDC(currentAddress);
+      getSupplyUSDC();
 
       toast.success('Withdraw successful');
     } catch (error) {
@@ -277,7 +277,7 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({
 
     const weiAmount = web3.utils.toWei(amount.toString(), 'ether');
     try {
-      await contractETH.methods
+      contractETH.methods
         .approve(contractsData.lendBorrow.address, weiAmount)
         .send({ from: currentAddress });
 
@@ -299,11 +299,13 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({
 
     const weiAmount = web3.utils.toWei(amount.toString(), 'ether');
     try {
+      await contractUSDC.methods
+        .approve(contractsData.lendBorrow.address, weiAmount)
+        .send({ from: currentAddress });
       const tx = await contractLendBorrow.methods
         .borrow(weiAmount)
         .send({ from: currentAddress });
 
-      // Cek apakah transaksi benar-benar sukses di blockchain
       if (tx && tx.status) {
         await getUserBorrowed();
         await getSupplyUSDC();
@@ -330,15 +332,13 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({
 
     const weiAmount = web3.utils.toWei(borrowed.toString(), 'ether');
     try {
-      await contractUSDC.methods
+      contractUSDC.methods
         .approve(contractsData.lendBorrow.address, weiAmount)
         .send({ from: currentAddress });
-      await contractLendBorrow.methods
-        .repayLoan()
-        .send({ from: currentAddress });
-      await getUserCollateral();
-      await getUserBorrowed();
-      await getSupplyUSDC();
+      contractLendBorrow.methods.repayLoan().send({ from: currentAddress });
+      getUserCollateral();
+      getUserBorrowed();
+      getSupplyUSDC();
       toast.success('Deposit collateral successful');
     } catch (error) {
       toast.error('Failed deposit collateral');
@@ -399,21 +399,21 @@ export const WalletProvider: React.FC<{ children: ReactNode }> = ({
     }
   };
 
- const mintUSDC = async (recipientAddress, amount) => {
-   try {
-     const decimals = await contractUSDC.methods.decimals().call();
-     const ten = new BN(10);
-     const amountInWei = new BN(amount).mul(ten.pow(new BN(decimals)));
+  const mintUSDC = async (recipientAddress, amount) => {
+    try {
+      const decimals = await contractUSDC.methods.decimals().call();
+      const ten = new BN(10);
+      const amountInWei = new BN(amount).mul(ten.pow(new BN(decimals)));
 
-     await contractUSDC.methods
-       .mint(recipientAddress, amountInWei.toString())
-       .send({ from: currentAddress });
+      await contractUSDC.methods
+        .mint(recipientAddress, amountInWei.toString())
+        .send({ from: currentAddress });
 
-     console.log('Minting success');
-   } catch (err) {
-     console.error('Minting failed:', err);
-   }
- };
+      console.log('Minting success');
+    } catch (err) {
+      console.error('Minting failed:', err);
+    }
+  };
 
   return (
     <WalletContext.Provider
