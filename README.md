@@ -5,12 +5,34 @@ This repository contains the smart contracts for the Pharos Lending Platform, a 
 
 ## Overview
 
-The Pharos Lending Platform allows users to:
+LendAI Smart Contracts 
+This repository contains the smart contracts for LendAI, a decentralized lending protocol built on the Pharos blockchain, integrating AI-driven credit scoring and native restaking for efficient and inclusive DeFi lending.
+ 
+Overview 
+LendAI enables users to: 
+- Deposit wBTC/wETH to earn interest and additional yield through Pharos’ native restaking.   
+ 
+- Borrow USDC using wBTC/wETH as collateral, with requirements adjusted by AI credit scores.   
+ 
+- Build on-chain credit scores based on transaction history and PHAR balance.   
+ 
+- Maximize lender returns with restaking rewards on collateral. 
 
-- Deposit USDP stablecoins to earn interest
-- Borrow USDP against PHAR collateral
-- Build credit scores through platform interactions
-- Earn additional yield through collateral restaking
+
+Contract Architecture 
+
+The platform consists of the following core contracts: 
+PharosToken (PHAR): Native token of the Pharos ecosystem, used for balance-based credit scoring.   
+ 
+- USDCToken (USDC) / USDTToken (USDT): Stablecoins used for lending and borrowing.   
+ 
+- Collateral Tokens (wBTC, wETH): Assets used as collateral for borrowing.   
+ 
+- Credit Scoring: Calculates user credit scores on-chain using interaction count and PHAR balance. 
+ 
+- Restaking Integration: Manages restaking of collateral via Pharos’ native mechanism, distributing rewards to lenders.   
+ 
+- LendAI: Main contract handling deposits, loans, repayments, and integration with AI credit scoring and restaking.
 
 ## Contract Architecture
 
